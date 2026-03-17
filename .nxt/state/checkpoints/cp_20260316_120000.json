@@ -1,0 +1,170 @@
+{
+  "checkpoint_id": "cp_20260316_120000",
+  "timestamp": "2026-03-16T12:00:00Z",
+  "type": "manual",
+  "trigger": "on_context_warning",
+  "reason": "Session continuation after context exhaustion in previous conversation",
+
+  "state": {
+    "orchestrator": {
+      "active": true,
+      "current_task": "Analisis de Sentimientos - IMDb Movie Reviews (UNIR Master PLN, Actividad 2)",
+      "task_id": "task_20260316_120000",
+      "classification": {
+        "level": 3,
+        "type": "complex",
+        "estimated_agents": ["orchestrator", "analyst", "pm", "architect", "design", "dev", "qa", "docs", "scrum", "devops", "multicontext"]
+      },
+      "progress": {
+        "phase": "verificar",
+        "step": 10,
+        "total_steps": 11,
+        "percentage": 90.0
+      }
+    },
+    "agents": {
+      "active": ["multicontext"],
+      "completed": ["orchestrator", "analyst", "pm", "architect", "design", "dev", "qa", "docs", "scrum", "devops"],
+      "pending": [],
+      "current": {
+        "name": "multicontext",
+        "task": "Persist state and create recovery documentation",
+        "started_at": "2026-03-16T12:00:00Z",
+        "subtasks_completed": 0,
+        "subtasks_total": 5
+      }
+    },
+    "decisions": [
+      {
+        "id": "dec_001",
+        "type": "architecture",
+        "question": "Backend framework?",
+        "answer": "FastAPI (Python 3.14 dev, Docker uses 3.12-slim)",
+        "reason": "Async, automatic OpenAPI docs, Pydantic validation"
+      },
+      {
+        "id": "dec_002",
+        "type": "architecture",
+        "question": "Frontend framework?",
+        "answer": "Angular 19 with standalone components, lazy loading",
+        "reason": "Latest Angular with Tailwind v4 and Forest Design System"
+      },
+      {
+        "id": "dec_003",
+        "type": "architecture",
+        "question": "Database layer?",
+        "answer": "Supabase with local fallback via db_service.py",
+        "reason": "Cloud persistence with 100% availability guarantee via fallback"
+      },
+      {
+        "id": "dec_004",
+        "type": "implementation",
+        "question": "ML prediction fallback?",
+        "answer": "Keyword heuristic when models not serialized",
+        "reason": "Ensures predict endpoint always works without trained models"
+      },
+      {
+        "id": "dec_005",
+        "type": "cleanup",
+        "question": "Remove supabase.service.ts?",
+        "answer": "Yes, dead code removed",
+        "reason": "Frontend communicates via FastAPI, not directly to Supabase"
+      },
+      {
+        "id": "dec_006",
+        "type": "security",
+        "question": "Hardcoded Supabase keys in environment.ts?",
+        "answer": "Removed, set to empty strings",
+        "reason": "Security: keys belong in .env on backend only"
+      },
+      {
+        "id": "dec_007",
+        "type": "implementation",
+        "question": "Error handling pattern?",
+        "answer": "HTTPException with try/except on all endpoints",
+        "reason": "Consistent 500 error responses with detail messages"
+      },
+      {
+        "id": "dec_008",
+        "type": "implementation",
+        "question": "Model serialization?",
+        "answer": "joblib with compress=3",
+        "reason": "Standard sklearn serialization, good compression"
+      },
+      {
+        "id": "dec_009",
+        "type": "devops",
+        "question": "Docker Python version?",
+        "answer": "python:3.12-slim (NOT 3.14)",
+        "reason": "Python 3.14 has build issues with compiled dependencies"
+      },
+      {
+        "id": "dec_010",
+        "type": "design",
+        "question": "Design system?",
+        "answer": "Forest Design System with Tailwind v4",
+        "reason": "Nature-inspired dark theme, consistent across all 9 views"
+      }
+    ],
+    "artifacts": {
+      "backend": {
+        "routers": ["dataset.py", "article.py", "report.py", "model.py", "export.py", "argilla.py"],
+        "services": ["dataset_service.py", "model_service.py", "db_service.py", "supabase_client.py", "pdf_service.py", "notebook_service.py", "argilla_service.py"],
+        "scripts": ["train_and_save.py", "seed_supabase.py"],
+        "data": ["model_results.py", "article_data.py", "report_content.py"],
+        "tasks": ["train_model.py", "generate_exports.py"],
+        "tests": ["conftest.py", "test_endpoints.py", "test_services.py"],
+        "config": ["main.py", "celery_app.py", "Dockerfile"]
+      },
+      "frontend": {
+        "features": ["dashboard", "dataset", "modelo", "pipeline", "articulo", "retos", "argilla", "informe", "entregables"],
+        "services": ["api.service.ts", "article.service.ts", "dataset.service.ts", "model.service.ts", "report.service.ts", "export.service.ts"],
+        "shared": ["header", "sidebar", "loading-spinner", "metric-card", "info-modal"],
+        "config": ["app.component.ts", "app.routes.ts", "app.config.ts", "environment.ts", "Dockerfile"]
+      },
+      "infra": ["docker-compose.yml", ".github/workflows/ci.yml", "requirements.txt"]
+    },
+    "user_context": {
+      "project": "UNIR Master PLN - Actividad 2",
+      "session_type": "continuation_after_context_exhaustion",
+      "preferences": [
+        "Spanish academic context, code in English",
+        "Forest Design System",
+        "HTTPException everywhere",
+        "Python 3.12-slim in Docker"
+      ]
+    }
+  },
+
+  "summary": {
+    "task": "Analisis de Sentimientos - IMDb Movie Reviews",
+    "progress": "90%",
+    "current_action": "State persistence and checkpoint creation (multicontext agent)",
+    "next_action": "Final polish, remaining Should/Could features, or submission",
+    "blockers": [],
+    "metrics": {
+      "backend_endpoints": 16,
+      "frontend_views": 9,
+      "tests_passing": 47,
+      "svm_accuracy": "89.68%",
+      "export_formats": 3,
+      "agents_executed": 10,
+      "bmad_level": 3
+    }
+  },
+
+  "recovery_instructions": [
+    "1. This is UNIR Master PLN Actividad 2 - Analisis de Sentimientos IMDb",
+    "2. Stack: FastAPI + Angular 19 + Tailwind v4 + Supabase + WeasyPrint + nbformat",
+    "3. Backend: 16 endpoints across 6 routers on port 8000",
+    "4. Frontend: 9 lazy-loaded views on port 4200 with Forest Design System",
+    "5. 47 backend tests passing (pytest), CI via GitHub Actions",
+    "6. Docker Compose: backend + frontend + redis",
+    "7. Real SVM model via train_and_save.py, keyword heuristic fallback",
+    "8. 10 NXT agents completed, project ~90% complete",
+    "9. Key file: docs/2-planning/prd.md has full feature inventory",
+    "10. Working directory: C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2",
+    "11. To continue: Read this checkpoint, verify file existence, then proceed with remaining tasks",
+    "12. Must/Should features all implemented. Could features partially done."
+  ]
+}

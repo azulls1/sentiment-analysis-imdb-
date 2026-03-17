@@ -1,0 +1,110 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.Python
+venv/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ========================
+# Node / Angular
+# ========================
+node_modules/
+.angular/
+dist/
+tmp/
+.sass-cache/
+*.css.map
+
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+nul
+
+# ========================
+# Logs
+# ========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================
+# Testing & Coverage
+# ========================
+coverage/
+.nyc_output/
+htmlcov/
+.pytest_cache/
+.coverage
+*.cover
+
+# ========================
+# Build artifacts
+# ========================
+*.pyc
+*.pyo
+*.class
+*.dll
+*.exe
+*.o
+*.obj
+
+# ========================
+# Celery
+# ========================
+celerybeat-schedule
+celerybeat.pid
+
+# ========================
+# ML Models (large binaries)
+# ========================
+*.pkl
+*.h5
+*.pt
+# Note: backend/models/*.joblib are tracked (needed for predictions)
+
+# ========================
+# Misc
+# ========================
+*.bak
+*.tmp
+*.temp
+.cache/
+forest-design-system/
+nxt-ai-development/

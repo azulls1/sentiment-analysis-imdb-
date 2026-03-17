@@ -1,0 +1,212 @@
+name: document-project
+description: Documenta proyecto existente antes de modificarlo
+phase: 0
+agent: analyst
+version: 1.0
+project_type: brownfield
+
+triggers:
+  - "*document-project"
+  - Automático cuando se detecta brownfield
+
+purpose: |
+  CRÍTICO para proyectos brownfield.
+  Antes de modificar código existente, debemos entenderlo completamente.
+  Este workflow crea la documentación necesaria para trabajar de forma segura.
+
+importance: CRITICAL_FOR_BROWNFIELD
+
+steps:
+  - name: "Escanear estructura"
+    action: "Analizar estructura del proyecto"
+    examine:
+      directories:
+        - "Estructura de carpetas"
+        - "Convenciones de naming"
+        - "Organización de código"
+      files:
+        - "Archivos de configuración"
+        - "Package.json / requirements.txt"
+        - "Docker files"
+        - "CI/CD configs"
+    output: structure_analysis
+
+  - name: "Detectar tech stack"
+    action: "Identificar tecnologías usadas"
+    detect:
+      frontend:
+        - "Framework (React, Vue, Angular, etc)"
+        - "State management"
+        - "Styling solution"
+        - "Build tools"
+      backend:
+        - "Runtime (Node, Python, etc)"
+        - "Framework (Express, FastAPI, etc)"
+        - "ORM/Database access"
+      database:
+        - "Tipo (SQL, NoSQL)"
+        - "Sistema específico"
+      infrastructure:
+        - "Cloud provider"
+        - "Containerization"
+        - "CI/CD"
+    output: tech_stack_detected
+
+  - name: "Analizar dependencias"
+    action: "Mapear dependencias del proyecto"
+    examine:
+      - "Dependencies en package.json"
+      - "DevDependencies"
+      - "Versiones y posibles vulnerabilidades"
+      - "Dependencias desactualizadas"
+    output: dependencies_analysis
+
+  - name: "Mapear componentes"
+    action: "Identificar componentes principales"
+    identify:
+      - "Módulos/features principales"
+      - "Servicios y su responsabilidad"
+      - "Modelos/entidades"
+      - "APIs y endpoints"
+      - "Componentes UI principales"
+    output: component_map
+
+  - name: "Analizar patrones"
+    action: "Identificar patrones de código existentes"
+    look_for:
+      architectural:
+        - "Patrón de arquitectura (MVC, Clean, etc)"
+        - "Estructura de carpetas"
+        - "Separación de concerns"
+      code:
+        - "Naming conventions"
+        - "Error handling patterns"
+        - "Testing patterns"
+        - "State management patterns"
+    output: patterns_identified
+
+  - name: "Identificar puntos de integración"
+    action: "Encontrar donde conectar nuevo código"
+    find:
+      - "Entry points de la aplicación"
+      - "APIs públicas internas"
+      - "Event systems"
+      - "Shared services"
+      - "Database access points"
+    output: integration_points
+
+  - name: "Evaluar calidad del código"
+    action: "Análisis de calidad existente"
+    check:
+      tests:
+        - "Existencia de tests"
+        - "Coverage actual"
+        - "Tipos de tests"
+      code_quality:
+        - "Linting configurado"
+        - "TypeScript strictness"
+        - "Código duplicado"
+      documentation:
+        - "README existente"
+        - "Comentarios en código"
+        - "API documentation"
+    output: quality_assessment
+
+  - name: "Identificar deuda técnica"
+    action: "Documentar deuda técnica existente"
+    categories:
+      - "TODOs y FIXMEs en código"
+      - "Código deprecated"
+      - "Dependencias desactualizadas"
+      - "Patrones inconsistentes"
+      - "Falta de tests"
+    output: technical_debt
+
+  - name: "Documentar constraints"
+    action: "Identificar limitaciones"
+    identify:
+      - "Código legacy que no se puede tocar"
+      - "Dependencias fijas (por compatibilidad)"
+      - "Patrones obligatorios"
+      - "Restricciones de performance"
+      - "Requisitos de backwards compatibility"
+    output: constraints
+
+  - name: "Generar documentación"
+    action: "Crear documento consolidado"
+    template: |
+      # Documentación del Sistema Existente
+
+      ## 1. Resumen del Proyecto
+      [Descripción general]
+
+      ## 2. Tech Stack
+      ### Frontend
+      - Framework: [X]
+      - State: [X]
+      - Estilos: [X]
+
+      ### Backend
+      - Runtime: [X]
+      - Framework: [X]
+      - ORM: [X]
+
+      ### Base de Datos
+      - Tipo: [X]
+      - Sistema: [X]
+
+      ### Infraestructura
+      - Cloud: [X]
+      - CI/CD: [X]
+
+      ## 3. Estructura del Proyecto
+      ```
+      [árbol de directorios principales]
+      ```
+
+      ## 4. Componentes Principales
+      | Componente | Responsabilidad | Ubicación |
+      |------------|-----------------|-----------|
+
+      ## 5. Patrones Identificados
+      ### Arquitectura
+      [Patrones arquitectónicos]
+
+      ### Código
+      [Convenciones y patrones de código]
+
+      ## 6. Puntos de Integración
+      [Dónde y cómo integrar nuevo código]
+
+      ## 7. Calidad Actual
+      - Test coverage: [X]%
+      - Linting: [Sí/No]
+      - TypeScript: [Sí/No]
+
+      ## 8. Deuda Técnica
+      | Área | Descripción | Severidad |
+      |------|-------------|-----------|
+
+      ## 9. Constraints
+      - [Constraint 1]
+      - [Constraint 2]
+
+      ## 10. Recomendaciones
+      [Recomendaciones para trabajar con este código]
+
+      ---
+      Generado: [fecha]
+      Autor: NXT Analyst
+    output: docs/existing-system-documentation.md
+
+outputs:
+  - docs/existing-system-documentation.md
+  - tech-stack-detected.yaml
+  - component-map.md
+  - technical-debt.md
+
+next_steps:
+  greenfield_scope:
+    - "*create-brownfield-prd para definir cambios"
+  small_change:
+    - "*create-brownfield-story para crear story directamente"

@@ -1,0 +1,20 @@
+{
+  "pattern": "ML Lazy Load with Fallback",
+  "description": "Carga perezosa de modelos ML serializados con fallback a heuristica cuando no estan disponibles.",
+  "example": "backend/services/model_service.py",
+  "template": null,
+  "usage_count": 1,
+  "structure": {
+    "state": "_ml_models = {'vectorizer': None, 'svm': None, 'loaded': False, 'available': False}",
+    "load_function": "_load_ml_models() - carga joblib una sola vez",
+    "primary": "_predict_with_ml(text) - SVM real + decision_function -> sigmoid confidence",
+    "fallback": "_predict_with_heuristic(text) - keyword matching con negation detection",
+    "entry_point": "predict_sentiment(text) - intenta ML, fallback a heuristic"
+  },
+  "model_files": {
+    "directory": "backend/models/",
+    "vectorizer": "tfidf_vectorizer.joblib",
+    "classifier": "svm.joblib",
+    "training_script": "backend/scripts/train_and_save.py"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-03-16T12:00:00Z",
+  "total_patterns": 6,
+  "patterns": [
+    {
+      "id": "PAT-001",
+      "name": "FastAPI Router",
+      "file": "api-router.json",
+      "category": "backend",
+      "usage_count": 6
+    },
+    {
+      "id": "PAT-002",
+      "name": "Service Layer",
+      "file": "service-layer.json",
+      "category": "backend",
+      "usage_count": 7
+    },
+    {
+      "id": "PAT-003",
+      "name": "Angular Feature Component",
+      "file": "angular-feature.json",
+      "category": "frontend",
+      "usage_count": 9
+    },
+    {
+      "id": "PAT-004",
+      "name": "Dual Data Layer",
+      "file": "dual-data-layer.json",
+      "category": "data",
+      "usage_count": 1
+    },
+    {
+      "id": "PAT-005",
+      "name": "ML Lazy Load with Fallback",
+      "file": "ml-lazy-fallback.json",
+      "category": "ml",
+      "usage_count": 1
+    },
+    {
+      "id": "PAT-006",
+      "name": "Test Structure",
+      "file": "test-structure.json",
+      "category": "testing",
+      "usage_count": 2
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "pattern": "Dual Data Layer",
+  "description": "Patron de acceso a datos que intenta Supabase primero y cae a datos locales pre-calculados si no esta disponible.",
+  "example": "backend/services/db_service.py",
+  "template": null,
+  "usage_count": 1,
+  "structure": {
+    "check": "if sb.is_configured():",
+    "remote": "rows = sb.select('table_name', params)",
+    "fallback": "return LOCAL_DATA_CONSTANT",
+    "tables": [
+      "analisis_sentimi_report_sections",
+      "analisis_sentimi_report_metadata",
+      "analisis_sentimi_model_results",
+      "analisis_sentimi_dataset_stats",
+      "analisis_sentimi_sample_reviews",
+      "analisis_sentimi_article"
+    ]
+  },
+  "local_data_sources": [
+    "backend/data/model_results.py (MODEL_RESULTS, DATASET_STATS, SAMPLE_REVIEWS, COMPARISON_TABLE)",
+    "backend/data/report_content.py (REPORT_BLOCKS, REPORT_METADATA)",
+    "backend/data/article_data.py (ARTICLE_INFO, ARTICLE_SUMMARY)"
+  ]
+}

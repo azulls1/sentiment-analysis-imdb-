@@ -1,0 +1,156 @@
+name: risk-assessment
+description: Evaluación de riesgos para cambios en sistema existente
+phase: 2
+agent: qa
+version: 1.0
+project_type: brownfield
+
+triggers:
+  - "*risk-assessment"
+  - "*evaluar-riesgos"
+  - "*risk [story]"
+
+inputs:
+  - change_scope: "Alcance del cambio propuesto"
+  - codebase_analysis: "Análisis del código existente"
+  - story_id: "Story específica (opcional)"
+
+purpose: |
+  Identificar y evaluar riesgos de regresión antes de modificar
+  código existente. Crítico para proyectos brownfield.
+
+steps:
+  - name: "Cargar contexto"
+    action: "Leer documentación del cambio"
+    reads:
+      - "docs/2-planning/prd-brownfield.md"
+      - "docs/1-analysis/codebase-analysis.md"
+      - "docs/4-implementation/stories/[story].md" (si aplica)
+    output: change_context
+
+  - name: "Mapear dependencias"
+    action: "Identificar código afectado"
+    trace:
+      - "Archivos a modificar directamente"
+      - "Archivos que importan los modificados"
+      - "Archivos que usan las mismas APIs"
+      - "Tests existentes relacionados"
+    output: dependency_map
+
+  - name: "Identificar riesgos de regresión"
+    action: "Evaluar posibles regresiones"
+    categories:
+      functional:
+        - "Features que podrían romperse"
+        - "Flujos de usuario afectados"
+        - "Integraciones impactadas"
+      performance:
+        - "Queries que podrían degradarse"
+        - "Endpoints afectados"
+        - "Procesos batch"
+      data:
+        - "Migraciones de datos"
+        - "Integridad referencial"
+        - "Backups necesarios"
+      security:
+        - "Cambios en autenticación"
+        - "Nuevas superficies de ataque"
+        - "Permisos modificados"
+    output: regression_risks
+
+  - name: "Evaluar severidad"
+    action: "Clasificar cada riesgo"
+    matrix:
+      probability: [low, medium, high]
+      impact: [low, medium, high, critical]
+    calculate: "risk_score = probability × impact"
+    output: risk_scores
+
+  - name: "Definir mitigaciones"
+    action: "Planificar cómo reducir riesgos"
+    for_each_risk:
+      - "Estrategia de mitigación"
+      - "Tests adicionales necesarios"
+      - "Validaciones requeridas"
+      - "Rollback plan"
+    output: mitigations
+
+  - name: "Crear plan de testing"
+    action: "Definir tests de regresión"
+    define:
+      unit_tests:
+        - "Nuevos tests a crear"
+        - "Tests existentes a ejecutar"
+      integration_tests:
+        - "Flujos a probar"
+        - "Integraciones a validar"
+      manual_tests:
+        - "Escenarios críticos"
+        - "Edge cases"
+    output: regression_test_plan
+
+  - name: "Generar reporte"
+    action: "Documentar evaluación de riesgos"
+    template: |
+      # Risk Assessment: [Cambio/Story]
+
+      ## Resumen Ejecutivo
+      - **Nivel de Riesgo General**: [Low/Medium/High/Critical]
+      - **Áreas Críticas**: [N]
+      - **Tests Requeridos**: [N]
+      - **Recomendación**: [Proceder/Proceder con cautela/Revisar alcance]
+
+      ## 1. Alcance del Cambio
+      ### Archivos a Modificar
+      - [archivo]: [tipo de cambio]
+
+      ### Dependencias Afectadas
+      [Diagrama o lista de dependencias]
+
+      ## 2. Riesgos Identificados
+
+      ### Riesgos Críticos
+      | ID | Riesgo | Probabilidad | Impacto | Score |
+      |----|--------|--------------|---------|-------|
+
+      ### Riesgos Altos
+      | ID | Riesgo | Probabilidad | Impacto | Score |
+      |----|--------|--------------|---------|-------|
+
+      ### Riesgos Medios/Bajos
+      [Lista resumida]
+
+      ## 3. Plan de Mitigación
+      | Riesgo ID | Mitigación | Responsable |
+      |-----------|------------|-------------|
+
+      ## 4. Plan de Testing de Regresión
+      ### Tests Automatizados
+      - [ ] [Test 1]
+
+      ### Tests Manuales
+      - [ ] [Escenario 1]
+
+      ### Validaciones Pre-Deploy
+      - [ ] [Validación 1]
+
+      ## 5. Rollback Plan
+      [Pasos para revertir si hay problemas]
+
+      ## 6. Checklist Pre-Implementación
+      - [ ] Backup de base de datos
+      - [ ] Feature flag configurado
+      - [ ] Tests de regresión listos
+      - [ ] Monitoreo configurado
+      - [ ] Runbook de rollback documentado
+
+      ## 7. Recomendación Final
+      [Recomendación con justificación]
+
+outputs:
+  - "docs/2-planning/risk-assessment-[nombre].md"
+  - "regression-test-plan.md"
+
+next_steps:
+  if_low_risk: "*create-story"
+  if_high_risk: "Revisar alcance o agregar mitigaciones"

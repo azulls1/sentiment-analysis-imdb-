@@ -1,0 +1,317 @@
+{
+  "framework_version": "3.6.0",
+  "orchestrator_version": "3.6.0",
+  "current_phase": "verificar",
+  "current_context": {
+    "task": "Analisis de Sentimientos - IMDb Movie Reviews (UNIR Master PLN, Actividad 2)",
+    "scale": "nivel_3",
+    "current_phase": "verificar",
+    "current_agent": "nxt-context",
+    "completed_steps": [
+      "orchestrator",
+      "analyst",
+      "pm",
+      "architect",
+      "design",
+      "dev",
+      "qa",
+      "docs",
+      "scrum",
+      "devops",
+      "multicontext",
+      "context",
+      "changelog",
+      "ralph",
+      "checkpoint"
+    ],
+    "pending_steps": [],
+    "artifacts": {
+      "prd": "docs/2-planning/prd.md",
+      "backend": "backend/main.py",
+      "frontend_routes": "frontend/src/app/app.routes.ts",
+      "docker": "docker-compose.yml",
+      "ci": ".github/workflows/ci.yml",
+      "tests": "backend/tests/test_endpoints.py",
+      "train_script": "backend/scripts/train_and_save.py",
+      "context_session": ".nxt/context/session-context.json",
+      "context_decisions": ".nxt/context/decisions/",
+      "context_patterns": ".nxt/context/patterns/",
+      "context_preferences": ".nxt/context/preferences/user-preferences.json"
+    },
+    "decisions": [
+      "FastAPI + Angular 19 + Tailwind v4 + Supabase stack",
+      "Forest Design System (dark nature theme)",
+      "Keyword heuristic fallback for ML predictions",
+      "Removed supabase.service.ts (dead code)",
+      "Cleared hardcoded Supabase keys from environment.ts",
+      "HTTPException error handling on all endpoints",
+      "joblib compress=3 for model serialization",
+      "python:3.12-slim for Docker (not 3.14)",
+      "9 lazy-loaded standalone Angular components",
+      "Supabase with local fallback via db_service.py",
+      "xhtml2pdf as primary PDF engine (pure Python, no GTK needed)",
+      "ML models trained on IMDb 50K: NB 87.27%, LR 90.04%, SVM 89.80%",
+      "PDF optimized to 10 pages (within 12-page UNIR limit)",
+      "Informe page: interactive cards + modals per section",
+      "Entregables page: dual modal system (entregables + criteria)",
+      "Content trimmed in Retos and Argilla sections for page limit"
+    ],
+    "started_at": "2026-03-16T12:00:00Z"
+  },
+  "completed_tasks": [],
+  "pending_tasks": [
+    {
+      "id": "plan_20260316_120000",
+      "task": "Analisis de Sentimientos - IMDb Movie Reviews",
+      "scale": "nivel_3",
+      "track": "bmad_method",
+      "agents": [
+        "nxt-orchestrator",
+        "nxt-analyst",
+        "nxt-pm",
+        "nxt-architect",
+        "nxt-design",
+        "nxt-dev",
+        "nxt-qa",
+        "nxt-tech-writer",
+        "nxt-scrum-master",
+        "nxt-devops",
+        "nxt-multicontext"
+      ],
+      "workflow_graph": {
+        "start": ["orchestrator"],
+        "orchestrator": ["analyst"],
+        "analyst": ["pm"],
+        "pm": ["architect"],
+        "architect": ["design"],
+        "design": ["dev"],
+        "dev": ["qa"],
+        "qa": ["docs"],
+        "docs": ["scrum"],
+        "scrum": ["devops"],
+        "devops": ["multicontext"],
+        "multicontext": ["end"]
+      },
+      "execution_order": [
+        "orchestrator",
+        "analyst",
+        "pm",
+        "architect",
+        "design",
+        "dev",
+        "qa",
+        "docs",
+        "scrum",
+        "devops",
+        "multicontext"
+      ],
+      "estimated_phases": 11,
+      "created_at": "2026-03-15T00:00:00Z",
+      "status": "completed",
+      "progress_percentage": 100
+    }
+  ],
+  "active_agents": [],
+  "decisions_log": [
+    {
+      "type": "classification",
+      "task": "Analisis de Sentimientos - IMDb Movie Reviews",
+      "scale": "nivel_3",
+      "estimated_files": 55,
+      "estimated_hours": 40,
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "architecture",
+      "decision": "FastAPI + Angular 19 + Tailwind v4 + Supabase",
+      "reason": "Modern async backend + latest Angular with standalone components",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "implementation",
+      "decision": "Keyword heuristic fallback for ML predictions",
+      "reason": "Ensures predict endpoint always works without trained models",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "security",
+      "decision": "Remove hardcoded Supabase keys from environment.ts",
+      "reason": "Keys belong in .env on backend only",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "cleanup",
+      "decision": "Remove supabase.service.ts (dead code)",
+      "reason": "Frontend communicates via FastAPI, not directly to Supabase",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "implementation",
+      "decision": "HTTPException error handling on all endpoints",
+      "reason": "Consistent 500 error responses with detail messages",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "implementation",
+      "decision": "joblib compress=3 for model serialization",
+      "reason": "Standard sklearn serialization with good compression",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "devops",
+      "decision": "python:3.12-slim for Docker (not 3.14)",
+      "reason": "Python 3.14 has build issues with compiled dependencies",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "design",
+      "decision": "Forest Design System with Tailwind v4",
+      "reason": "Nature-inspired dark theme, consistent across all 9 views",
+      "timestamp": "2026-03-15T00:00:00Z"
+    },
+    {
+      "type": "persistence",
+      "decision": "MultiContext agent checkpoint and recovery",
+      "reason": "Context exhaustion in previous session, need full state persistence",
+      "timestamp": "2026-03-16T12:00:00Z"
+    },
+    {
+      "type": "context",
+      "decision": "Full context persistence with 8 ADRs, 6 patterns, 12 preferences",
+      "reason": "NXT Context agent captured complete project knowledge for session continuity",
+      "timestamp": "2026-03-16T23:00:00Z"
+    },
+    {
+      "type": "implementation",
+      "decision": "xhtml2pdf replaces WeasyPrint as primary PDF engine",
+      "reason": "Pure Python, no GTK system dependency needed on Windows",
+      "timestamp": "2026-03-17T02:00:00Z"
+    },
+    {
+      "type": "implementation",
+      "decision": "ML models trained on IMDb 50K dataset",
+      "reason": "NB 87.27%, LR 90.04%, SVM 89.80% - real predictions now active",
+      "timestamp": "2026-03-17T01:52:00Z"
+    },
+    {
+      "type": "design",
+      "decision": "Informe page redesigned with interactive card grid and section modals",
+      "reason": "Better UX for reviewing 8 report sections with key points and navigation",
+      "timestamp": "2026-03-17T00:30:00Z"
+    },
+    {
+      "type": "design",
+      "decision": "Entregables page redesigned with dual modal system",
+      "reason": "Separate modals for deliverables (3) and evaluation criteria (5)",
+      "timestamp": "2026-03-17T01:00:00Z"
+    },
+    {
+      "type": "optimization",
+      "decision": "PDF content trimmed to 10 pages (limit 12)",
+      "reason": "CSS compacted (10pt, 1.45 line-height) + Retos/Argilla sections condensed",
+      "timestamp": "2026-03-17T01:30:00Z"
+    }
+  ],
+  "session_history": [
+    {
+      "session_id": "session_20260316",
+      "type": "continuation",
+      "started_at": "2026-03-16T12:00:00Z",
+      "agents_executed": ["nxt-multicontext"],
+      "checkpoints_created": ["cp_20260316_120000", "cp_20260316_120001"]
+    },
+    {
+      "session_id": "session_20260316_resume",
+      "type": "resume_checkpoint",
+      "started_at": "2026-03-16T22:30:00Z",
+      "agents_executed": ["nxt-multicontext"],
+      "checkpoints_created": [".nxt/checkpoints/checkpoint_20260316_223000.json"],
+      "summary": "Full project resume/recovery document generated at 90% completion"
+    },
+    {
+      "session_id": "session_20260316_context",
+      "type": "context_persistence",
+      "started_at": "2026-03-16T23:00:00Z",
+      "agents_executed": ["nxt-context"],
+      "files_created": 22,
+      "summary": "Full context persistence: 8 ADRs, 6 code patterns, 12 preferences, session history, cache"
+    },
+    {
+      "session_id": "session_20260317",
+      "type": "continuation",
+      "started_at": "2026-03-17T00:00:00Z",
+      "agents_executed": ["nxt-dev", "nxt-design", "nxt-qa", "nxt-context"],
+      "summary": "Improved informe+entregables pages, trained ML models, fixed PDF generation with xhtml2pdf, verified 10-page PDF within limit"
+    }
+  ],
+  "registries": {
+    "agents_loaded": true,
+    "skills_loaded": true,
+    "workflows_loaded": true
+  },
+  "integration_status": {
+    "bmad_connected": true,
+    "mcp_connected": true,
+    "event_bus_active": true,
+    "hooks_enabled": true,
+    "self_healing_active": true,
+    "learning_enabled": true,
+    "metrics_collection": true,
+    "persistence_agents_active": true
+  },
+  "capabilities": {
+    "event_emission": true,
+    "self_healing": true,
+    "circuit_breaker": true,
+    "learning_from_decisions": true,
+    "predictive_classification": true,
+    "health_monitoring": true,
+    "metrics_collection": true,
+    "auto_persistence": true
+  },
+  "persistence_agents": {
+    "enabled": true,
+    "run_on_every_interaction": true,
+    "agents": [
+      "nxt-context",
+      "nxt-multicontext",
+      "nxt-changelog",
+      "nxt-ralph"
+    ],
+    "triggers": [
+      "on_session_start",
+      "on_task_complete",
+      "on_agent_switch",
+      "on_checkpoint",
+      "on_session_end",
+      "always",
+      "on_every_interaction"
+    ],
+    "always_trigger_includes_all": true
+  },
+  "metrics": {
+    "checkpoints_created": 4,
+    "recoveries_successful": 1,
+    "context_warnings": 0,
+    "decisions_persisted": 16,
+    "agents_executed": 16,
+    "context_entries": 32,
+    "adrs_documented": 10,
+    "patterns_catalogued": 8,
+    "preferences_captured": 12,
+    "state_size_bytes": 0,
+    "session_count": 4
+  },
+  "context_summary": {
+    "session_context": ".nxt/context/session-context.json",
+    "decisions_dir": ".nxt/context/decisions/",
+    "patterns_dir": ".nxt/context/patterns/",
+    "preferences_file": ".nxt/context/preferences/user-preferences.json",
+    "history_dir": ".nxt/context/history/",
+    "cache_dir": ".nxt/context/cache/",
+    "total_adrs": 8,
+    "total_patterns": 6,
+    "total_preferences": 12
+  },
+  "last_updated": "2026-03-17T02:00:00Z"
+}

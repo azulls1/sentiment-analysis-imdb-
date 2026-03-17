@@ -1,0 +1,349 @@
+{
+  "checkpoint_id": "checkpoint_20260316_223000",
+  "created_at": "2026-03-16T22:30:00Z",
+  "framework_version": "3.6.0",
+  "session_date": "2026-03-16",
+
+  "project": {
+    "name": "Analisis de Sentimientos - IMDb Movie Reviews",
+    "type": "academic",
+    "university": "UNIR",
+    "program": "Master en Inteligencia Artificial",
+    "course": "Procesamiento de Lenguaje Natural (PLN)",
+    "activity": "Actividad 2",
+    "reference_article": "Keerthi Kumar & Harish (2019) - IMDb Sentiment Analysis",
+    "bmad_level": 3,
+    "bmad_label": "Complex",
+    "completion_percentage": 90,
+    "working_directory": "C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2"
+  },
+
+  "architecture": {
+    "pattern": "Full-Stack Monorepo",
+    "backend": {
+      "framework": "FastAPI",
+      "language": "Python 3.12",
+      "server": "Uvicorn",
+      "routers": 6,
+      "endpoints": 16,
+      "services": ["model_service", "dataset_service", "db_service", "pdf_service", "notebook_service", "argilla_service"],
+      "database": "Supabase (PostgreSQL) with local fallback via db_service.py",
+      "pdf_engine": "WeasyPrint + Jinja2 with fallback",
+      "notebook_engine": "nbformat (38 cells, prepopulated outputs)",
+      "queue": "Celery + Redis (configured, tasks simulated)",
+      "ml_models": {
+        "prediction": "Real SVM via joblib (lazy load) + keyword heuristic fallback",
+        "serialization": "joblib",
+        "model_files_exist": false,
+        "model_files_directory": "backend/models/",
+        "expected_files": [
+          "tfidf_vectorizer.joblib",
+          "naive_bayes.joblib",
+          "logistic_regression.joblib",
+          "svm.joblib"
+        ]
+      },
+      "precalculated_results": {
+        "naive_bayes_accuracy": 0.8512,
+        "logistic_regression_accuracy": 0.8936,
+        "svm_accuracy": 0.8968,
+        "best_model": "SVM"
+      }
+    },
+    "frontend": {
+      "framework": "Angular 19.2",
+      "language": "TypeScript 5.7",
+      "styling": "Tailwind CSS v4.2 + Forest Design System",
+      "components": "standalone",
+      "state": "signals",
+      "loading": "lazy (all feature routes)",
+      "routes": 9,
+      "feature_components": [
+        "dashboard",
+        "dataset",
+        "modelo",
+        "articulo",
+        "retos",
+        "argilla",
+        "pipeline",
+        "informe",
+        "entregables"
+      ],
+      "shared_components": [
+        "header",
+        "sidebar",
+        "loading-spinner",
+        "metric-card",
+        "info-modal"
+      ],
+      "services": [
+        "api.service.ts",
+        "article.service.ts",
+        "dataset.service.ts",
+        "export.service.ts",
+        "model.service.ts",
+        "report.service.ts"
+      ],
+      "typescript_interfaces": 12,
+      "interfaces_file": "frontend/src/app/core/models/index.ts"
+    },
+    "infrastructure": {
+      "docker_compose": true,
+      "dockerfiles": ["backend/Dockerfile", "frontend/Dockerfile"],
+      "ci_cd": ".github/workflows/ci.yml",
+      "redis": "redis:7-alpine"
+    },
+    "ports": {
+      "backend": "http://localhost:8000",
+      "frontend": "http://localhost:4200",
+      "docker_frontend": "http://localhost:80",
+      "redis": "localhost:6379"
+    }
+  },
+
+  "endpoints_inventory": {
+    "root": [
+      {"method": "GET", "path": "/", "description": "API info + docs link"},
+      {"method": "GET", "path": "/api/health", "description": "Health check"}
+    ],
+    "dataset": [
+      {"method": "GET", "path": "/api/dataset/stats", "description": "Dataset statistics"},
+      {"method": "GET", "path": "/api/dataset/samples", "description": "Sample reviews (limit param)"}
+    ],
+    "article": [
+      {"method": "GET", "path": "/api/article/summary", "description": "Article summary"}
+    ],
+    "model": [
+      {"method": "GET", "path": "/api/model/results", "description": "All model metrics"},
+      {"method": "GET", "path": "/api/model/comparison", "description": "Comparison table"},
+      {"method": "GET", "path": "/api/model/status", "description": "Training status"},
+      {"method": "POST", "path": "/api/model/train", "description": "Start training"},
+      {"method": "POST", "path": "/api/model/predict", "description": "Predict sentiment"}
+    ],
+    "report": [
+      {"method": "GET", "path": "/api/report/content", "description": "Report metadata + blocks"}
+    ],
+    "export": [
+      {"method": "GET", "path": "/api/export/pdf", "description": "Download PDF report"},
+      {"method": "GET", "path": "/api/export/notebook", "description": "Download Jupyter notebook"},
+      {"method": "GET", "path": "/api/export/zip", "description": "Download ZIP bundle"}
+    ],
+    "argilla": [
+      {"method": "POST", "path": "/api/argilla/classify", "description": "Zero-shot classification"},
+      {"method": "GET", "path": "/api/argilla/health", "description": "Check transformers availability"}
+    ]
+  },
+
+  "tests": {
+    "backend_test_count": 47,
+    "backend_test_status": "ALL PASSING",
+    "test_files": [
+      "backend/tests/conftest.py",
+      "backend/tests/test_endpoints.py",
+      "backend/tests/test_services.py"
+    ],
+    "test_classes": [
+      "TestRootEndpoints (2 tests)",
+      "TestDatasetEndpoints (4 tests)",
+      "TestArticleEndpoints (1 test)",
+      "TestModelEndpoints (10 tests)",
+      "TestReportEndpoints (1 test)",
+      "TestExportEndpoints (3 tests)",
+      "TestArgillaEndpoints (2 tests)",
+      "TestDatasetService (6 tests)",
+      "TestModelService (6 tests)",
+      "TestPrediction (9 tests)",
+      "TestArgillaService (3 tests)"
+    ],
+    "run_command": "python -m pytest backend/tests/ -v --tb=short",
+    "frontend_tests": "NOT YET CREATED"
+  },
+
+  "completed_work": [
+    "Created .gitignore, .env.example, README.md",
+    "Fixed BUG-001: LR training time corrected from 12.47s to 5.67s in dashboard",
+    "Added 16 docstrings to all 16 FastAPI endpoints",
+    "Implemented real SVM model prediction with lazy loading + heuristic fallback",
+    "Created train_and_save.py script for model serialization with joblib",
+    "Created argilla router with zero-shot classification (facebook/bart-large-mnli)",
+    "Removed dead code (supabase.service.ts, hardcoded keys)",
+    "Created 12 TypeScript interfaces in frontend/src/app/core/models/index.ts",
+    "Added error handling (try/except + HTTPException) to all endpoints",
+    "Created 47 backend tests across 2 test files - ALL PASSING",
+    "Created Docker Compose + 2 Dockerfiles (backend + frontend)",
+    "Created CI/CD GitHub Actions pipeline (.github/workflows/ci.yml)",
+    "Saved PRD at docs/2-planning/prd.md",
+    "Executed 10 NXT agents + 6 persistence agents",
+    "Created .env.example with Redis, CORS, Supabase config templates"
+  ],
+
+  "remaining_work": {
+    "required": [
+      {
+        "id": "TASK-01",
+        "title": "Generate .joblib model files",
+        "description": "Run python -m backend.scripts.train_and_save to train NB, LR, SVM on IMDb and save .joblib files to backend/models/. Requires scikit-learn + datasets (HuggingFace). Takes ~3-5 minutes.",
+        "priority": "HIGH",
+        "estimated_time": "5 min",
+        "command": "python -m backend.scripts.train_and_save",
+        "note": "Without these files, predictions use keyword heuristic fallback instead of real SVM"
+      }
+    ],
+    "recommended": [
+      {
+        "id": "TASK-02",
+        "title": "Angular component tests",
+        "description": "Create Jasmine/Karma tests for Angular components (at minimum dashboard, modelo, dataset)",
+        "priority": "MEDIUM",
+        "estimated_time": "2-3 hours"
+      },
+      {
+        "id": "TASK-03",
+        "title": "Linting setup",
+        "description": "Configure ruff for Python backend and eslint for Angular frontend",
+        "priority": "MEDIUM",
+        "estimated_time": "30 min"
+      }
+    ],
+    "nice_to_have": [
+      {
+        "id": "TASK-04",
+        "title": "BERT vs ML comparison",
+        "description": "Add BERT fine-tuned model comparison against NB/LR/SVM",
+        "priority": "LOW",
+        "estimated_time": "4-6 hours"
+      },
+      {
+        "id": "TASK-05",
+        "title": "LIME/SHAP interpretability",
+        "description": "Add model interpretability visualizations using LIME or SHAP",
+        "priority": "LOW",
+        "estimated_time": "3-4 hours"
+      }
+    ]
+  },
+
+  "dependencies": {
+    "python": {
+      "file": "requirements.txt",
+      "key_packages": [
+        "fastapi==0.115.0",
+        "uvicorn[standard]==0.30.6",
+        "scikit-learn==1.5.2",
+        "datasets==3.0.1",
+        "transformers==4.45.1",
+        "weasyprint==62.3",
+        "nbformat==5.10.4",
+        "jinja2==3.1.4",
+        "pandas==2.2.3",
+        "numpy==2.1.1",
+        "celery==5.4.0",
+        "redis==5.1.0",
+        "torch==2.4.1",
+        "supabase==2.11.0",
+        "python-dotenv==1.0.1",
+        "httpx==0.27.2"
+      ]
+    },
+    "node": {
+      "file": "frontend/package.json",
+      "angular_version": "19.2.0",
+      "tailwind_version": "4.2.1",
+      "typescript_version": "5.7.2"
+    }
+  },
+
+  "file_tree": {
+    "backend": {
+      "main.py": "FastAPI app entry, 6 routers, CORS middleware",
+      "celery_app.py": "Celery configuration",
+      "Dockerfile": "Python 3.12-slim + WeasyPrint system deps",
+      "routers/": {
+        "dataset.py": "2 endpoints: stats, samples",
+        "article.py": "1 endpoint: summary",
+        "model.py": "5 endpoints: results, comparison, status, train, predict",
+        "report.py": "1 endpoint: content",
+        "export.py": "3 endpoints: pdf, notebook, zip",
+        "argilla.py": "2 endpoints: classify, health"
+      },
+      "services/": {
+        "model_service.py": "Prediction (SVM lazy load + heuristic fallback), model results",
+        "dataset_service.py": "Dataset stats and sample reviews",
+        "db_service.py": "Supabase with local fallback for report data",
+        "pdf_service.py": "WeasyPrint + Jinja2 PDF generation",
+        "notebook_service.py": "nbformat notebook generation (38 cells)",
+        "argilla_service.py": "Zero-shot classification with transformers pipeline",
+        "supabase_client.py": "Supabase client initialization"
+      },
+      "data/": {
+        "model_results.py": "Pre-calculated NB/LR/SVM metrics, confusion matrices, comparison table",
+        "article_data.py": "Keerthi Kumar & Harish (2019) article summary",
+        "report_content.py": "Academic report sections content"
+      },
+      "scripts/": {
+        "train_and_save.py": "Train NB, LR, SVM on IMDb + serialize with joblib",
+        "seed_supabase.py": "Seed Supabase with report data"
+      },
+      "models/": {
+        ".gitkeep": "Directory placeholder - NO .joblib files yet"
+      },
+      "tests/": {
+        "conftest.py": "TestClient fixture",
+        "test_endpoints.py": "23 integration tests across 7 test classes",
+        "test_services.py": "24 unit tests across 4 test classes"
+      },
+      "tasks/": {
+        "train_model.py": "Celery training task",
+        "generate_exports.py": "Celery export task"
+      }
+    },
+    "frontend/src/app": {
+      "app.component.ts": "Root component with sidebar + header",
+      "app.routes.ts": "9 lazy-loaded routes + wildcard redirect",
+      "app.config.ts": "Angular app configuration",
+      "core/models/index.ts": "12 TypeScript interfaces",
+      "core/services/": "6 services (api, article, dataset, export, model, report)",
+      "features/": "9 feature components (dashboard, dataset, modelo, articulo, retos, argilla, pipeline, informe, entregables)",
+      "shared/components/": "5 shared components (header, sidebar, loading-spinner, metric-card, info-modal)"
+    },
+    "root": {
+      "docker-compose.yml": "3 services: backend, frontend, redis",
+      "requirements.txt": "16 Python dependencies",
+      ".env.example": "Redis, CORS, Supabase config template",
+      ".gitignore": "Python, Node, IDE, environment ignores",
+      ".github/workflows/ci.yml": "Backend tests (Python 3.11/3.12) + Frontend build",
+      "docs/2-planning/prd.md": "Product Requirements Document"
+    }
+  },
+
+  "known_issues": [],
+
+  "bugs_fixed": [
+    {
+      "id": "BUG-001",
+      "description": "LR training time showed 12.47s instead of 5.67s in dashboard comparison",
+      "fix": "Updated model_results.py COMPARISON_TABLE and MODEL_RESULTS",
+      "status": "FIXED"
+    }
+  ],
+
+  "startup_commands": {
+    "backend": "cd \"C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2\" && uvicorn backend.main:app --reload --port 8000",
+    "frontend": "cd \"C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2\\frontend\" && ng serve",
+    "tests": "cd \"C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2\" && python -m pytest backend/tests/ -v --tb=short",
+    "train_models": "cd \"C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2\" && python -m backend.scripts.train_and_save",
+    "docker": "cd \"C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2\" && docker-compose up --build"
+  },
+
+  "next_step": "TASK-01: Run train_and_save.py to generate .joblib model files, then optionally TASK-02 (Angular tests) and TASK-03 (linting)",
+
+  "recovery_instructions": [
+    "1. Read this checkpoint file to restore full context",
+    "2. Working directory: C:\\Users\\shernandez\\Desktop\\mestria\\Primer Semestre\\Actividad 2",
+    "3. Check if backend/models/*.joblib exist - if not, run train_and_save.py first",
+    "4. Verify backend tests still pass: python -m pytest backend/tests/ -v",
+    "5. Start backend: uvicorn backend.main:app --reload --port 8000",
+    "6. Start frontend: cd frontend && ng serve",
+    "7. Continue with remaining_work items in priority order"
+  ]
+}

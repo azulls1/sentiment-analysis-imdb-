@@ -1,0 +1,21 @@
+{
+  "pattern": "FastAPI Router",
+  "description": "Patron para routers REST en el backend. Cada recurso tiene su propio router con prefijo /api/{resource}.",
+  "example": "backend/routers/model.py",
+  "template": "backend/routers/{resource}.py",
+  "usage_count": 6,
+  "instances": [
+    "backend/routers/dataset.py - /api/dataset (stats, samples)",
+    "backend/routers/article.py - /api/article (summary)",
+    "backend/routers/report.py - /api/report (content)",
+    "backend/routers/model.py - /api/model (train, status, predict, comparison, results)",
+    "backend/routers/export.py - /api/export (pdf, notebook, zip)",
+    "backend/routers/argilla.py - /api/argilla (classify, health)"
+  ],
+  "structure": {
+    "imports": "from fastapi import APIRouter, HTTPException",
+    "router_init": "router = APIRouter(prefix='/api/{resource}', tags=['{resource}'])",
+    "request_model": "class RequestName(BaseModel): field: type",
+    "endpoint": "@router.get|post('/path') def endpoint_name(): try/except HTTPException"
+  }
+}

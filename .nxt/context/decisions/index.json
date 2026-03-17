@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-03-16T12:00:00Z",
+  "total_decisions": 8,
+  "decisions": [
+    {
+      "id": "ADR-001",
+      "title": "FastAPI como framework backend",
+      "file": "ADR-001-fastapi-backend.md",
+      "date": "2026-02-01",
+      "status": "accepted",
+      "tags": ["backend", "framework", "api"]
+    },
+    {
+      "id": "ADR-002",
+      "title": "Angular 19 con standalone components",
+      "file": "ADR-002-angular19-standalone.md",
+      "date": "2026-02-01",
+      "status": "accepted",
+      "tags": ["frontend", "framework", "angular"]
+    },
+    {
+      "id": "ADR-003",
+      "title": "Datos pre-calculados con prediccion en vivo",
+      "file": "ADR-003-precalculated-data.md",
+      "date": "2026-02-01",
+      "status": "accepted",
+      "tags": ["data", "ml", "architecture"]
+    },
+    {
+      "id": "ADR-004",
+      "title": "Supabase con fallback a datos locales",
+      "file": "ADR-004-supabase-fallback.md",
+      "date": "2026-02-01",
+      "status": "accepted",
+      "tags": ["database", "supabase", "fallback"]
+    },
+    {
+      "id": "ADR-005",
+      "title": "Forest Design System (CSS-only)",
+      "file": "ADR-005-forest-design-system.md",
+      "date": "2026-02-01",
+      "status": "accepted",
+      "tags": ["frontend", "design-system", "css"]
+    },
+    {
+      "id": "ADR-006",
+      "title": "Correccion BUG-001 - LR Training Time",
+      "file": "ADR-006-bug001-lr-time.md",
+      "date": "2026-03-01",
+      "status": "accepted",
+      "tags": ["bugfix", "data", "ml"]
+    },
+    {
+      "id": "ADR-007",
+      "title": "SVM real con fallback heuristica",
+      "file": "ADR-007-svm-real-model.md",
+      "date": "2026-03-01",
+      "status": "accepted",
+      "tags": ["ml", "prediction", "architecture"]
+    },
+    {
+      "id": "ADR-008",
+      "title": "Docker Compose para orquestacion",
+      "file": "ADR-008-docker-compose.md",
+      "date": "2026-03-01",
+      "status": "accepted",
+      "tags": ["devops", "docker", "deployment"]
+    }
+  ]
+}

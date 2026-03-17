@@ -1,0 +1,132 @@
+name: product-brief
+description: Crear documento de visión inicial del producto
+phase: 1
+agent: analyst
+version: 1.0
+
+triggers:
+  - "*product-brief"
+  - "*brief"
+
+inputs:
+  - brainstorming_doc: "Documento de brainstorming (si existe)"
+  - research_docs: "Documentos de investigación (si existen)"
+
+purpose: |
+  Consolidar la visión inicial del producto en un documento conciso
+  que sirva como base para el PRD y la planificación.
+
+steps:
+  - name: "Recopilar inputs"
+    action: "Leer documentos previos si existen"
+    sources:
+      - "docs/1-analysis/brainstorming-*.md"
+      - "docs/1-analysis/research-*.md"
+      - "docs/1-analysis/competitive-analysis.md"
+    output: existing_context
+
+  - name: "Definir problema"
+    action: "Articular claramente el problema"
+    questions:
+      - "¿Qué problema específico resolvemos?"
+      - "¿Por qué es importante resolverlo ahora?"
+      - "¿Qué pasa si NO lo resolvemos?"
+    output: problem_statement
+
+  - name: "Definir solución"
+    action: "Describir la solución propuesta"
+    questions:
+      - "¿Cómo resolvemos el problema?"
+      - "¿Qué hace nuestra solución única?"
+      - "¿Cuál es el valor principal para el usuario?"
+    output: solution_description
+
+  - name: "Identificar usuarios"
+    action: "Definir usuarios objetivo"
+    for_each_persona:
+      - "Nombre/Rol"
+      - "Necesidades principales"
+      - "Pain points"
+      - "Cómo usarán el producto"
+    output: target_users[]
+
+  - name: "Definir éxito"
+    action: "Establecer criterios de éxito"
+    metrics:
+      - "KPIs de negocio"
+      - "Métricas de usuario"
+      - "Métricas técnicas"
+    output: success_criteria[]
+
+  - name: "Identificar riesgos iniciales"
+    action: "Listar riesgos conocidos"
+    categories:
+      - "Técnicos"
+      - "De negocio"
+      - "De mercado"
+      - "De recursos"
+    output: initial_risks[]
+
+  - name: "Generar documento"
+    action: "Crear Project Brief"
+    template: |
+      # Project Brief: [Nombre del Proyecto]
+
+      ## Resumen Ejecutivo
+      [2-3 párrafos describiendo el proyecto]
+
+      ## Problema
+      ### Declaración del Problema
+      [Descripción clara del problema]
+
+      ### Impacto
+      - ¿A quién afecta?
+      - ¿Cuál es el costo de no resolverlo?
+
+      ## Solución Propuesta
+      ### Descripción
+      [Cómo resolvemos el problema]
+
+      ### Diferenciadores
+      [Qué nos hace únicos]
+
+      ## Usuarios Objetivo
+      ### Persona 1: [Nombre]
+      - **Rol**: [descripción]
+      - **Necesidades**: [lista]
+      - **Pain Points**: [lista]
+
+      ## Alcance Inicial
+      ### Incluido
+      - [Feature 1]
+      - [Feature 2]
+
+      ### Excluido
+      - [Item 1]
+      - [Item 2]
+
+      ## Criterios de Éxito
+      | Métrica | Target | Plazo |
+      |---------|--------|-------|
+
+      ## Riesgos Identificados
+      | Riesgo | Impacto | Probabilidad | Mitigación |
+      |--------|---------|--------------|------------|
+
+      ## Próximos Pasos
+      1. [Paso 1]
+      2. [Paso 2]
+
+      ---
+      Fecha: [fecha]
+      Autor: NXT Analyst
+      Estado: Draft
+    output: docs/1-analysis/project-brief.md
+
+outputs:
+  - docs/1-analysis/project-brief.md
+
+next_steps:
+  - "Revisar con stakeholders"
+  - "Si aprobado: *plan-project o *create-prd"
+  - "Si necesita más detalle: *research [tema específico]"

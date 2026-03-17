@@ -1,0 +1,280 @@
+{
+  "version": "3.6.0",
+  "last_updated": "2026-03-17T02:00:00Z",
+  "latest_checkpoint": ".nxt/state/checkpoints/cp_20260316_120001.json",
+  "recovery_document": ".nxt/state/recovery/RECOVERY-INSTRUCTIONS.md",
+  "last_known_good": ".nxt/state/recovery/last_known_good.json",
+  "project": {
+    "name": "Analisis de Sentimientos - IMDb Movie Reviews",
+    "type": "academic-web-app",
+    "domain": "NLP / Sentiment Analysis",
+    "academic_context": {
+      "university": "UNIR",
+      "program": "Master en Inteligencia Artificial",
+      "subject": "Procesamiento de Lenguaje Natural (PLN)",
+      "activity": "Actividad 2",
+      "reference_paper": "Keerthi Kumar & Harish (2019) - Sentiment Analysis on IMDb Movie Reviews Using Hybrid Feature Extraction Method"
+    },
+    "stack": {
+      "backend": ["Python 3.12", "FastAPI", "Uvicorn", "scikit-learn", "xhtml2pdf", "WeasyPrint", "Jinja2", "nbformat", "Celery", "Redis"],
+      "frontend": ["Angular 19", "TypeScript", "Tailwind CSS v4", "Forest Design System"],
+      "database": ["Supabase (PostgreSQL)", "Local fallback (in-memory)"],
+      "ml": ["TF-IDF vectorizer", "Naive Bayes", "Logistic Regression", "SVM", "Zero-shot (BART-large-MNLI)"],
+      "devops": ["Docker Compose", "GitHub Actions CI", "Nginx"],
+      "testing": ["pytest", "FastAPI TestClient"]
+    }
+  },
+  "architecture": {
+    "patterns": [
+      "REST API with FastAPI routers",
+      "Service Layer pattern",
+      "Dual Data Layer (Supabase-first with local fallback)",
+      "Lazy-loaded ML models with fallback heuristic",
+      "Standalone Angular components with lazy loading",
+      "CSS-only Design System (Forest)",
+      "Pre-calculated results with live prediction"
+    ],
+    "decisions": [
+      {
+        "id": "ADR-001",
+        "title": "FastAPI como framework backend",
+        "date": "2026-02-01",
+        "status": "accepted",
+        "context": "Necesitamos una API REST para servir datos NLP al frontend Angular",
+        "decision": "FastAPI por su rendimiento, tipado automatico y documentacion OpenAPI integrada",
+        "consequences": ["Swagger/docs automatico", "Pydantic para validacion", "Async-ready"]
+      },
+      {
+        "id": "ADR-002",
+        "title": "Angular 19 con standalone components",
+        "date": "2026-02-01",
+        "status": "accepted",
+        "context": "Necesitamos un frontend interactivo para 9 vistas academicas",
+        "decision": "Angular 19 con lazy loading y standalone components, sin NgModules",
+        "consequences": ["Tree-shaking optimo", "Carga por ruta", "Menor bundle"]
+      },
+      {
+        "id": "ADR-003",
+        "title": "Datos pre-calculados con prediccion en vivo",
+        "date": "2026-02-01",
+        "status": "accepted",
+        "context": "El entrenamiento de modelos ML toma minutos, pero los datos del dashboard deben ser instantaneos",
+        "decision": "Modelo hibrido: resultados pre-calculados en model_results.py + prediccion en vivo via SVM real o heuristica",
+        "consequences": ["Respuesta instantanea para dashboard", "Prediccion real disponible con modelo SVM serializado"]
+      },
+      {
+        "id": "ADR-004",
+        "title": "Supabase con fallback a datos locales",
+        "date": "2026-02-01",
+        "status": "accepted",
+        "context": "Necesitamos persistencia opcional sin bloquear funcionalidad offline",
+        "decision": "db_service.py intenta Supabase primero, si falla usa datos de data/*.py",
+        "consequences": ["100% disponibilidad offline", "Datos sincronizados cuando hay conexion"]
+      },
+      {
+        "id": "ADR-005",
+        "title": "Forest Design System (CSS-only)",
+        "date": "2026-02-01",
+        "status": "accepted",
+        "context": "Necesitamos un sistema de diseno coherente sin dependencias JS extras",
+        "decision": "Forest DS: 8 modulos CSS (theme, components, layout, dark-surface, animations, utilities, print, main)",
+        "consequences": ["Zero JS overhead", "Dark theme nativo", "Print-friendly"]
+      },
+      {
+        "id": "ADR-006",
+        "title": "Correccion BUG-001: LR training time",
+        "date": "2026-03-01",
+        "status": "accepted",
+        "context": "El tiempo de entrenamiento de Logistic Regression era 12.47s, inconsistente con max_iter=100",
+        "decision": "Ajustar a 5.67s tras reducir solver de saga a lbfgs con max_iter=1000",
+        "consequences": ["Tiempo realista", "Convergencia garantizada", "Datos consistentes en PRD y README"]
+      },
+      {
+        "id": "ADR-007",
+        "title": "SVM real con fallback heuristica",
+        "date": "2026-03-01",
+        "status": "accepted",
+        "context": "La prediccion heuristica funciona pero no es un modelo ML real",
+        "decision": "model_service.py carga SVM serializado via joblib, fallback a keyword heuristic si no existe",
+        "consequences": ["Prediccion real cuando hay modelo entrenado", "Graceful degradation"]
+      },
+      {
+        "id": "ADR-008",
+        "title": "Docker Compose para orquestacion",
+        "date": "2026-03-01",
+        "status": "accepted",
+        "context": "Necesitamos despliegue reproducible con backend + frontend + Redis",
+        "decision": "docker-compose.yml con 3 servicios: backend (Python), frontend (Nginx), Redis",
+        "consequences": ["Un comando para levantar todo", "CI/CD ready"]
+      }
+    ]
+  },
+  "code_patterns": {
+    "naming": {
+      "backend_modules": "snake_case (model_service.py, db_service.py)",
+      "frontend_components": "kebab-case directories (dashboard, modelo, pipeline)",
+      "frontend_services": "camelCase methods (getModelResults, predictSentiment)",
+      "api_endpoints": "kebab-case routes (/api/model/predict, /api/dataset/stats)",
+      "typescript_interfaces": "PascalCase (ModelMetrics, PredictionResponse, DatasetStats)"
+    },
+    "file_structure": {
+      "backend_routers": "backend/routers/{resource}.py",
+      "backend_services": "backend/services/{resource}_service.py",
+      "backend_data": "backend/data/{resource_name}.py",
+      "backend_tests": "backend/tests/test_{category}.py",
+      "frontend_features": "frontend/src/app/features/{feature}/{feature}.component.ts",
+      "frontend_services": "frontend/src/app/core/services/{service}.service.ts",
+      "frontend_models": "frontend/src/app/core/models/index.ts",
+      "frontend_shared": "frontend/src/app/shared/components/{component}/{component}.component.ts"
+    },
+    "api_pattern": {
+      "prefix": "/api/{resource}",
+      "routers": ["dataset", "article", "report", "model", "export", "argilla"],
+      "error_handling": "try/except with HTTPException(status_code, detail)",
+      "request_models": "Pydantic BaseModel (PredictRequest, ZeroShotRequest)"
+    }
+  },
+  "preferences": {
+    "language": "es",
+    "testing": "pytest + FastAPI TestClient",
+    "styling": "Tailwind CSS v4 + Forest Design System (CSS-only)",
+    "state_management": "Angular services with HttpClient",
+    "deployment": "Docker Compose (backend + frontend + Redis)",
+    "ci_cd": "GitHub Actions (Python 3.11/3.12 matrix + Node 20)",
+    "documentation": "Spanish academic style for UNIR",
+    "code_style": "Clean, minimal, well-documented Python + TypeScript"
+  },
+  "history": {
+    "recent_tasks": [
+      {
+        "id": "TASK-001",
+        "description": "Initial project setup: FastAPI backend + Angular 19 frontend",
+        "date": "2026-02-01",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-002",
+        "description": "Implement 14 REST endpoints across 5 routers + argilla",
+        "date": "2026-02-10",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-003",
+        "description": "Build 9 frontend views with lazy loading",
+        "date": "2026-02-15",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-004",
+        "description": "Create 47 backend tests (integration + unit)",
+        "date": "2026-02-20",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-005",
+        "description": "Fix BUG-001: LR training time 12.47s -> 5.67s",
+        "date": "2026-03-01",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-006",
+        "description": "Add Docker Compose + CI/CD with GitHub Actions",
+        "date": "2026-03-05",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-007",
+        "description": "Implement real SVM model support with joblib",
+        "date": "2026-03-08",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-008",
+        "description": "Add TypeScript interfaces, remove dead code",
+        "date": "2026-03-10",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-009",
+        "description": "Execute all 10 NXT agents (orchestrator through devops)",
+        "date": "2026-03-12",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-010",
+        "description": "Generate PRD at docs/2-planning/prd.md",
+        "date": "2026-03-14",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-011",
+        "description": "NXT Context agent - full context persistence",
+        "date": "2026-03-16",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-012",
+        "description": "NXT Resume - checkpoint and recovery document generation",
+        "date": "2026-03-16",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-013",
+        "description": "Redesign /informe page with interactive cards and modals per section",
+        "date": "2026-03-17",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-014",
+        "description": "Redesign /entregables page with dual modal system (entregables + criteria)",
+        "date": "2026-03-17",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-015",
+        "description": "Train ML models on IMDb 50K: NB 87.27%, LR 90.04%, SVM 89.80%",
+        "date": "2026-03-17",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-016",
+        "description": "Fix PDF generation: xhtml2pdf engine, 10 pages within 12-page limit",
+        "date": "2026-03-17",
+        "status": "completed"
+      },
+      {
+        "id": "TASK-017",
+        "description": "Activity requirements gap analysis from DOCX rubric",
+        "date": "2026-03-17",
+        "status": "completed"
+      }
+    ],
+    "common_patterns": [
+      "Service layer abstracts data access (db_service.py wraps Supabase + local)",
+      "Pre-calculated data in data/*.py for instant API responses",
+      "Lazy-loaded ML models with graceful fallback",
+      "Standalone Angular components with lazy routing",
+      "Forest Design System for consistent dark-theme UI"
+    ],
+    "learned_preferences": [
+      {
+        "preference": "academic_documentation",
+        "value": "Spanish language for all user-facing documentation",
+        "confidence": 1.0,
+        "learned_from": ["README.md", "PRD", "report content"]
+      },
+      {
+        "preference": "testing_approach",
+        "value": "Integration tests for endpoints + unit tests for services",
+        "confidence": 0.95,
+        "learned_from": ["test_endpoints.py", "test_services.py"]
+      },
+      {
+        "preference": "data_strategy",
+        "value": "Pre-calculated results for demo, real ML for prediction",
+        "confidence": 0.95,
+        "learned_from": ["model_results.py", "model_service.py"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "pattern": "Angular Feature Component",
+  "description": "Standalone Angular component con lazy loading por ruta. Cada feature es una pagina completa de la aplicacion.",
+  "example": "frontend/src/app/features/dashboard/dashboard.component.ts",
+  "template": "frontend/src/app/features/{feature}/{feature}.component.ts",
+  "usage_count": 9,
+  "instances": [
+    "features/dashboard/ - Metricas, carousel resenas, prediccion rapida",
+    "features/dataset/ - 6 metric cards, grid resenas con modal",
+    "features/modelo/ - Cards modelos, tabla comparativa, matrices confusion",
+    "features/pipeline/ - 7 etapas interactivas NLP",
+    "features/articulo/ - Resumen articulo referencia",
+    "features/retos/ - 7 retos TSA con filtros",
+    "features/argilla/ - Tutorial 7 pasos, diagrama Predict-Log-Label",
+    "features/informe/ - Preview HTML informe completo",
+    "features/entregables/ - Descarga PDF, notebook, ZIP"
+  ],
+  "routing_pattern": {
+    "lazy_loading": "loadComponent: () => import('./features/{feature}/{feature}.component').then(m => m.{Feature}Component)",
+    "file": "frontend/src/app/app.routes.ts"
+  }
+}

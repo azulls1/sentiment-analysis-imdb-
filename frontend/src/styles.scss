@@ -1,0 +1,14 @@
+@use "tailwindcss";
+
+/* Forest DS se carga via angular.json (forest-theme.css, forest-components.css, etc.)
+   Aquí solo agregamos overrides mínimos específicos del proyecto */
+
+/* Ensure body uses Forest DS defaults */
+body {
+  margin: 0;
+  background-color: var(--color-bg-page, #F7F8F7);
+  color: var(--color-text-primary, #04202C);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

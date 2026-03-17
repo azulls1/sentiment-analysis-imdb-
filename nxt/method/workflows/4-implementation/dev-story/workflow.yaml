@@ -1,0 +1,147 @@
+name: dev-story
+description: Implementar story completa
+phase: 4
+agent: dev
+version: 1.0
+
+triggers:
+  - "*dev-story [story-id]"
+  - "*implement [story-id]"
+
+inputs:
+  - story_id: "ID de la story a implementar"
+  - story_file: "Path al archivo de la story"
+
+purpose: |
+  Guiar la implementación de una story de principio a fin,
+  asegurando calidad, tests y cumplimiento de criterios.
+
+prerequisites:
+  - "Story tiene story-context generado"
+  - "Story está en estado 'Ready'"
+  - "No hay dependencias bloqueantes"
+
+steps:
+  - name: "Cargar contexto"
+    action: "Leer story y story-context"
+    reads:
+      - "docs/4-implementation/stories/[story-id].md"
+    extract:
+      - "Criterios de aceptación"
+      - "Archivos a modificar"
+      - "Archivos a crear"
+      - "Patrones a seguir"
+      - "Código de referencia"
+    output: implementation_context
+
+  - name: "Planificar implementación"
+    action: "Crear plan de trabajo"
+    questions:
+      - "¿Qué orden de implementación es óptimo?"
+      - "¿Qué tests escribir primero (TDD)?"
+      - "¿Hay dependencias entre archivos?"
+    output:
+      implementation_order:
+        - step: 1
+          action: "Crear tipos/interfaces"
+          files: ["types.ts"]
+        - step: 2
+          action: "Implementar lógica core"
+          files: ["service.ts"]
+        - step: 3
+          action: "Crear UI (si aplica)"
+          files: ["Component.tsx"]
+        - step: 4
+          action: "Escribir tests"
+          files: ["*.test.ts"]
+
+  - name: "Implementar TDD (si aplica)"
+    action: "Escribir tests primero"
+    flow:
+      - "Escribir test que falla (Red)"
+      - "Implementar código mínimo para pasar (Green)"
+      - "Refactorizar (Refactor)"
+    conditional: "Si el proyecto usa TDD"
+
+  - name: "Implementar código"
+    action: "Escribir código de producción"
+    principles:
+      - "Seguir patrones identificados en story-context"
+      - "Mantener funciones pequeñas (<20 líneas)"
+      - "Nombres descriptivos"
+      - "No over-engineer"
+    for_each_file:
+      - "Crear/modificar archivo"
+      - "Verificar que compila"
+      - "Verificar que tests pasan"
+    output: implemented_code
+
+  - name: "Escribir tests"
+    action: "Asegurar cobertura"
+    types:
+      unit:
+        target: ">80% coverage"
+        focus: "Lógica de negocio"
+      integration:
+        conditional: "Si hay APIs o DB"
+        focus: "Flujos completos"
+    output: tests
+
+  - name: "Verificar criterios de aceptación"
+    action: "Validar cada AC"
+    for_each_ac:
+      - "Verificar que el código cumple"
+      - "Ejecutar test que lo valida"
+      - "Marcar como cumplido"
+    output: ac_validation
+
+  - name: "Self-review"
+    action: "Revisar propio código"
+    checklist:
+      code_quality:
+        - "¿Nombres descriptivos?"
+        - "¿Funciones pequeñas?"
+        - "¿Sin código duplicado?"
+        - "¿Manejo de errores apropiado?"
+      tests:
+        - "¿Coverage >80%?"
+        - "¿Tests edge cases?"
+        - "¿Tests legibles?"
+      security:
+        - "¿Sin secrets hardcodeados?"
+        - "¿Input validation?"
+        - "¿Sin vulnerabilidades obvias?"
+    output: self_review_result
+
+  - name: "Ejecutar validaciones"
+    action: "Correr todas las verificaciones"
+    commands:
+      - "npm run lint"
+      - "npm run test"
+      - "npm run build"
+    all_must_pass: true
+    output: validation_result
+
+  - name: "Actualizar estado"
+    action: "Marcar story como completada"
+    updates:
+      - "Estado: In Review"
+      - "Agregar notas de implementación"
+    output: updated_story
+
+outputs:
+  - "Código implementado en src/"
+  - "Tests en tests/ o junto al código"
+  - "Story actualizada con notas"
+
+checklist_final:
+  - "¿Todos los ACs están cumplidos?"
+  - "¿Todos los tests pasan?"
+  - "¿Linting pasa sin errores?"
+  - "¿Build es exitoso?"
+  - "¿Coverage >80%?"
+  - "¿Self-review completado?"
+
+next_steps:
+  - "*code-review para revisión de código"
+  - "*qa-validate [story-id] para validación QA"

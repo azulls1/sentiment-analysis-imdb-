@@ -1,0 +1,167 @@
+{
+  "checkpoint_id": "checkpoint_20260316_multicontext",
+  "created_at": "2026-03-16T23:00:00Z",
+  "created_by": "nxt-multicontext v3.6.0",
+  "type": "full_persistence",
+  "trigger": "manual_checkpoint_after_context_exhaustion",
+  "parent_checkpoints": [
+    "checkpoint_20260316_quality_session",
+    "checkpoint_20260316_223000"
+  ],
+
+  "session_lineage": {
+    "session_1": {
+      "description": "Original implementation session",
+      "agents_executed": ["orchestrator", "analyst", "pm", "architect", "design", "dev", "qa", "docs", "scrum", "devops"],
+      "outcome": "90% project completion, context exhaustion",
+      "checkpoint": "checkpoint_20260316_quality_session"
+    },
+    "session_2": {
+      "description": "Resume/context agent session",
+      "agents_executed": ["nxt-context", "nxt-multicontext (partial)"],
+      "outcome": "Context and resume checkpoint created",
+      "checkpoint": "checkpoint_20260316_223000"
+    },
+    "session_3": {
+      "description": "MultiContext persistence session (current)",
+      "agents_executed": ["nxt-multicontext"],
+      "outcome": "Full state persistence, checkpoints, recovery documentation",
+      "checkpoint": "checkpoint_20260316_multicontext"
+    }
+  },
+
+  "project_summary": {
+    "name": "Analisis de Sentimientos - IMDb Movie Reviews",
+    "context": "UNIR Master IA - PLN Actividad 2",
+    "reference": "Keerthi Kumar & Harish (2019)",
+    "bmad_level": 3,
+    "completion": "90%",
+    "stack": "FastAPI + Angular 19 + Tailwind v4 + Supabase + WeasyPrint + nbformat + Docker + GitHub Actions"
+  },
+
+  "quantitative_metrics": {
+    "backend_endpoints": 16,
+    "backend_routers": 6,
+    "backend_services": 7,
+    "backend_tests": 47,
+    "frontend_views": 9,
+    "frontend_services": 6,
+    "frontend_shared_components": 5,
+    "typescript_interfaces": 12,
+    "docker_services": 3,
+    "agents_executed": 10,
+    "decisions_logged": 10,
+    "svm_accuracy": "89.68%",
+    "reference_accuracy": "88.75%",
+    "export_formats": 3,
+    "notebook_cells": 38,
+    "unir_criteria_coverage": "5/5 at 100%"
+  },
+
+  "all_decisions": [
+    {"id": "dec_001", "category": "architecture", "summary": "FastAPI backend framework", "detail": "Async, OpenAPI docs, Pydantic validation"},
+    {"id": "dec_002", "category": "architecture", "summary": "Angular 19 standalone + lazy loading", "detail": "Latest Angular, no NgModules, per-route loading"},
+    {"id": "dec_003", "category": "architecture", "summary": "Supabase with local fallback", "detail": "100% availability via db_service.py pattern"},
+    {"id": "dec_004", "category": "implementation", "summary": "Keyword heuristic fallback for predictions", "detail": "Works without trained .joblib model files"},
+    {"id": "dec_005", "category": "cleanup", "summary": "Removed dead supabase.service.ts", "detail": "Frontend uses FastAPI, not direct Supabase"},
+    {"id": "dec_006", "category": "security", "summary": "Cleared hardcoded Supabase keys", "detail": "environment.ts has empty strings, keys in .env"},
+    {"id": "dec_007", "category": "implementation", "summary": "HTTPException on all endpoints", "detail": "try/except with 500 + detail message pattern"},
+    {"id": "dec_008", "category": "implementation", "summary": "joblib compress=3 serialization", "detail": "Standard sklearn persistence with compression"},
+    {"id": "dec_009", "category": "devops", "summary": "python:3.12-slim for Docker", "detail": "3.14 has build issues with C extensions"},
+    {"id": "dec_010", "category": "design", "summary": "Forest Design System + Tailwind v4", "detail": "Dark nature-inspired theme, 8 CSS modules"}
+  ],
+
+  "persistence_inventory": {
+    "state_files": [
+      {
+        "path": ".nxt/state/current.json",
+        "description": "Current orchestrator state with full agent history and decisions",
+        "updated": "2026-03-16T12:00:00Z"
+      },
+      {
+        "path": ".nxt/state.json",
+        "description": "Framework-level state with session history and integration status",
+        "updated": "2026-03-16T12:00:01Z"
+      }
+    ],
+    "checkpoints": [
+      {
+        "path": ".nxt/state/checkpoints/cp_20260316_120000.json",
+        "description": "Full state checkpoint (multicontext format)",
+        "trigger": "on_context_warning"
+      },
+      {
+        "path": ".nxt/state/checkpoints/cp_20260316_120001.json",
+        "description": "Delta checkpoint after multicontext activation",
+        "trigger": "on_agent_switch"
+      },
+      {
+        "path": ".nxt/checkpoints/checkpoint_20260316_quality_session.json",
+        "description": "Quality improvements session (original)",
+        "trigger": "session_end"
+      },
+      {
+        "path": ".nxt/checkpoints/checkpoint_20260316_223000.json",
+        "description": "Full resume checkpoint (context agent)",
+        "trigger": "resume_session"
+      },
+      {
+        "path": ".nxt/checkpoints/checkpoint_20260316_multicontext.json",
+        "description": "THIS FILE - consolidated multicontext persistence",
+        "trigger": "manual"
+      }
+    ],
+    "session_logs": [
+      {
+        "path": ".nxt/state/sessions/session_20260316.json",
+        "description": "Session log with stack details, agents, and events"
+      }
+    ],
+    "recovery": [
+      {
+        "path": ".nxt/state/recovery/last_known_good.json",
+        "description": "Last known good state for automatic recovery"
+      },
+      {
+        "path": ".nxt/state/recovery/RECOVERY-INSTRUCTIONS.md",
+        "description": "Human-readable recovery instructions with full context"
+      }
+    ],
+    "context": [
+      {
+        "path": ".nxt/context/session-context.json",
+        "description": "Session context with architecture decisions, patterns, preferences"
+      }
+    ],
+    "config": [
+      {
+        "path": ".nxt/multicontext.config.yaml",
+        "description": "MultiContext agent configuration"
+      }
+    ]
+  },
+
+  "recovery_quick_start": {
+    "step_1": "Read .nxt/state/recovery/RECOVERY-INSTRUCTIONS.md for full human-readable context",
+    "step_2": "Read .nxt/state/recovery/last_known_good.json for structured state",
+    "step_3": "Read .nxt/context/session-context.json for code patterns and architecture decisions",
+    "step_4": "Read docs/2-planning/prd.md for feature inventory",
+    "step_5": "Verify backend/main.py and frontend/src/app/app.routes.ts exist",
+    "step_6": "Run: python -m pytest backend/tests/ -v --tb=short (expect 47 passing)",
+    "step_7": "Continue with remaining tasks from .nxt/context/session-context.json -> remaining_work"
+  },
+
+  "remaining_work": {
+    "high_priority": [
+      "Run train_and_save.py to generate .joblib model files (enables real SVM predictions)"
+    ],
+    "medium_priority": [
+      "Angular component tests (Jasmine/Karma)",
+      "Linting setup (ruff for Python, eslint for Angular)"
+    ],
+    "low_priority": [
+      "BERT model comparison",
+      "LIME/SHAP interpretability visualizations"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "pattern": "Test Structure",
+  "description": "Estructura de tests con pytest: integration tests para endpoints y unit tests para servicios.",
+  "example": "backend/tests/test_endpoints.py",
+  "template": "backend/tests/test_{category}.py",
+  "usage_count": 2,
+  "files": {
+    "conftest.py": "Fixture 'client' -> TestClient(app)",
+    "test_endpoints.py": "Integration tests por clase: TestRootEndpoints, TestDatasetEndpoints, TestArticleEndpoints, TestModelEndpoints, TestReportEndpoints, TestExportEndpoints, TestArgillaEndpoints",
+    "test_services.py": "Unit tests: TestDatasetService, TestModelService, TestPrediction, TestArgillaService"
+  },
+  "total_tests": 47,
+  "conventions": {
+    "class_naming": "Test{Category}Endpoints or Test{Service}Service",
+    "method_naming": "test_{action}_{detail}",
+    "fixture": "client from conftest.py",
+    "run_command": "python -m pytest backend/tests/ -v --tb=short"
+  }
+}

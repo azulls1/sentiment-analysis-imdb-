@@ -1,0 +1,111 @@
+name: ux-design
+description: Diseño de experiencia de usuario para el proyecto
+phase: 3
+agent: ux
+version: 1.0
+
+triggers:
+  - "*ux-design"
+  - "*diseño-ux"
+  - "*wireframes"
+  - "*user-flows"
+
+inputs:
+  - prd: "PRD del proyecto"
+  - personas: "User personas definidas"
+  - epic_id: "Epic específico (opcional)"
+
+steps:
+  - name: "Cargar contexto"
+    action: "Leer documentos de usuario"
+    reads:
+      - "docs/1-analysis/user-personas.md"
+      - "docs/2-planning/prd.md"
+      - "docs/1-analysis/project-brief.md"
+    output: user_context
+
+  - name: "Definir flujos de usuario"
+    action: "Mapear user flows principales"
+    for_each_feature:
+      - "Entry point"
+      - "Pasos del usuario"
+      - "Decision points"
+      - "Success state"
+      - "Error states"
+      - "Edge cases"
+    output: user_flows
+
+  - name: "Crear information architecture"
+    action: "Estructurar la información"
+    define:
+      - "Navegación principal"
+      - "Jerarquía de contenido"
+      - "Agrupación de funciones"
+      - "Patrones de interacción"
+    output: ia_design
+
+  - name: "Diseñar wireframes"
+    action: "Crear wireframes de baja fidelidad"
+    for_each_screen:
+      - "Layout general"
+      - "Componentes principales"
+      - "Interacciones clave"
+      - "Estados del componente"
+    format: "ASCII o descripción detallada"
+    output: wireframes
+
+  - name: "Definir sistema de diseño"
+    action: "Establecer guidelines de UI"
+    define:
+      - "Paleta de colores"
+      - "Tipografía"
+      - "Espaciado"
+      - "Componentes UI"
+      - "Iconografía"
+      - "Patrones de interacción"
+    output: design_system
+
+  - name: "Crear prototipos"
+    action: "Describir interacciones detalladas"
+    for_each_flow:
+      - "Transiciones"
+      - "Animaciones"
+      - "Feedback al usuario"
+      - "Estados de carga"
+      - "Manejo de errores"
+    output: interaction_design
+
+  - name: "Documentar accesibilidad"
+    action: "Definir requisitos de accesibilidad"
+    checklist:
+      - "Contraste de colores (WCAG AA)"
+      - "Navegación por teclado"
+      - "Screen reader compatibility"
+      - "Textos alternativos"
+      - "Focus visible"
+      - "Tamaños táctiles"
+    output: accessibility_requirements
+
+  - name: "Generar entregables"
+    action: "Crear documentación de UX"
+    deliverables:
+      - "User flows (diagrama)"
+      - "Wireframes (descripción/ASCII)"
+      - "Design system (guidelines)"
+      - "Interaction specs"
+
+outputs:
+  - "docs/3-solutioning/ux/user-flows.md"
+  - "docs/3-solutioning/ux/wireframes.md"
+  - "docs/3-solutioning/ux/design-system.md"
+  - "docs/3-solutioning/ux/accessibility.md"
+
+next_steps:
+  - "*architecture" (si no existe)
+  - "*tech-spec [epic]"
+  - "*create-story [epic]"
+
+notes: |
+  Este workflow genera descripciones detalladas de UX.
+  Para wireframes visuales, el desarrollador puede usar
+  herramientas como Figma, Sketch, o incluso ASCII art.

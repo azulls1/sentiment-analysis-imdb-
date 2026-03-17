@@ -1,0 +1,138 @@
+name: qa-validation
+description: Validación de calidad de story implementada
+phase: 4
+agent: qa
+version: 1.0
+
+triggers:
+  - "*qa-validate [story]"
+  - "*validar [story]"
+  - "*qa [story]"
+
+inputs:
+  - story_id: "ID de la story a validar"
+  - code_review_status: "Estado del code review (debe ser APPROVED)"
+
+prerequisites:
+  - "Code review aprobado"
+  - "Tests automatizados pasando"
+
+steps:
+  - name: "Cargar story"
+    action: "Leer story y criterios de aceptación"
+    reads:
+      - "docs/4-implementation/stories/[story].md"
+    extract:
+      - "Criterios de aceptación"
+      - "Descripción funcional"
+      - "Edge cases mencionados"
+    output: story_requirements
+
+  - name: "Preparar ambiente de test"
+    action: "Verificar ambiente listo"
+    checks:
+      - "Aplicación corriendo"
+      - "Base de datos con datos de prueba"
+      - "Configuración correcta"
+    output: test_environment
+
+  - name: "Validar criterios de aceptación"
+    action: "Probar cada criterio"
+    for_each_criterion:
+      - "Ejecutar escenario Given-When-Then"
+      - "Documentar resultado"
+      - "Capturar evidencia si hay fallo"
+    output: criteria_validation
+
+  - name: "Testing exploratorio"
+    action: "Buscar issues no anticipados"
+    explore:
+      - "Edge cases"
+      - "Datos inválidos"
+      - "Flujos alternativos"
+      - "Interrupción de flujos"
+      - "Concurrencia (si aplica)"
+    output: exploratory_findings
+
+  - name: "Validar UX/UI"
+    action: "Verificar experiencia de usuario"
+    checklist:
+      - "Flujo intuitivo"
+      - "Feedback apropiado al usuario"
+      - "Mensajes de error claros"
+      - "Estados de carga visibles"
+      - "Responsive (si aplica)"
+      - "Accesibilidad básica"
+    output: ux_validation
+
+  - name: "Validar integración"
+    action: "Verificar integración con sistema"
+    checks:
+      - "No rompe funcionalidad existente"
+      - "Datos se guardan correctamente"
+      - "APIs responden correctamente"
+      - "No hay errores en logs"
+    output: integration_validation
+
+  - name: "Documentar bugs"
+    action: "Registrar issues encontrados"
+    for_each_bug:
+      template: |
+        ## BUG-[número]
+        - **Severidad**: [Critical/High/Medium/Low]
+        - **Story**: [story-id]
+        - **Título**: [descripción corta]
+        - **Descripción**: [detalle]
+        - **Pasos para reproducir**:
+          1. [paso]
+          2. [paso]
+        - **Resultado esperado**: [descripción]
+        - **Resultado actual**: [descripción]
+        - **Evidencia**: [screenshot/log]
+    output: bug_reports
+
+  - name: "Generar QA report"
+    action: "Crear reporte de validación"
+    template: |
+      # QA Validation: [Story ID]
+
+      ## Resumen
+      - **Resultado**: [PASSED/FAILED/BLOCKED]
+      - **Criterios probados**: [X/Y]
+      - **Bugs encontrados**: [N]
+      - **Bugs críticos**: [N]
+
+      ## Validación de Criterios
+      | Criterio | Estado | Notas |
+      |----------|--------|-------|
+      | AC-1: [descripción] | ✅/❌ | [notas] |
+
+      ## Testing Exploratorio
+      - [Hallazgo 1]
+      - [Hallazgo 2]
+
+      ## Bugs Encontrados
+      [Lista de bugs o "Ninguno"]
+
+      ## UX/UI
+      - [Observación 1]
+
+      ## Veredicto
+      **[APPROVED para release / FAILED - requiere fixes]**
+
+      ### Razón
+      [Explicación del veredicto]
+
+outputs:
+  - "docs/4-implementation/qa/[story-id]-qa-report.md"
+  - "Bug reports (si hay)"
+
+outcomes:
+  PASSED: "Story lista para release"
+  FAILED: "Requiere fixes del Dev"
+  BLOCKED: "Bloqueada por dependencia externa"
+
+next_steps:
+  if_passed: "Marcar story como DONE"
+  if_failed: "*dev-story [story] (fixes) → *qa-validate"
+  if_blocked: "Resolver bloqueo → *qa-validate"

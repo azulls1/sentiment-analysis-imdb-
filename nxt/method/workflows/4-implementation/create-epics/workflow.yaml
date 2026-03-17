@@ -1,0 +1,105 @@
+name: create-epics
+description: Extrae y define epics desde el PRD
+phase: 4
+agent: sm
+version: 1.0
+
+triggers:
+  - "*create-epics"
+  - "*extraer-epics"
+
+inputs:
+  - prd: "PRD del proyecto"
+
+steps:
+  - name: "Cargar PRD"
+    action: "Leer PRD completo"
+    reads:
+      - "docs/2-planning/prd.md"
+    extract:
+      - "Requisitos funcionales"
+      - "Prioridades MoSCoW"
+      - "Dependencias"
+    output: prd_content
+
+  - name: "Identificar epics"
+    action: "Agrupar requisitos en epics"
+    criteria:
+      - "Funcionalidad cohesiva"
+      - "Valor entregable independiente"
+      - "Tamaño manejable (5-15 stories)"
+    for_each_epic:
+      - "Nombre descriptivo"
+      - "Descripción"
+      - "Requisitos incluidos (IDs)"
+      - "Prioridad (del MoSCoW)"
+      - "Dependencias con otros epics"
+    output: identified_epics
+
+  - name: "Ordenar epics"
+    action: "Establecer orden de implementación"
+    consider:
+      - "Dependencias técnicas"
+      - "Prioridad de negocio"
+      - "Riesgos"
+      - "Valor entregable"
+    output: ordered_epics
+
+  - name: "Estimar epics"
+    action: "Estimación de alto nivel"
+    for_each_epic:
+      - "Número estimado de stories"
+      - "Complejidad (low/medium/high)"
+      - "Riesgos identificados"
+    output: estimated_epics
+
+  - name: "Crear documentos de epic"
+    action: "Generar archivo por epic"
+    template: |
+      # Epic: [Epic Name]
+
+      ## Metadata
+      - ID: EPIC-[número]
+      - Prioridad: [Must/Should/Could]
+      - Estimación: [X] stories
+      - Complejidad: [Low/Medium/High]
+
+      ## Descripción
+      [Descripción del epic y su valor]
+
+      ## Requisitos del PRD
+      - RF-XXX: [Descripción]
+      - RF-XXX: [Descripción]
+
+      ## Dependencias
+      - EPIC-XX: [Razón]
+
+      ## Criterios de Aceptación del Epic
+      - [ ] [Criterio 1]
+      - [ ] [Criterio 2]
+
+      ## Stories Preliminares
+      1. [Story 1]
+      2. [Story 2]
+
+      ## Notas
+      [Notas adicionales]
+
+  - name: "Crear overview"
+    action: "Generar documento resumen"
+    content:
+      - "Lista de todos los epics"
+      - "Orden de implementación"
+      - "Diagrama de dependencias"
+      - "Estimación total"
+    output: epics_overview
+
+outputs:
+  - "docs/2-planning/epics/EPIC-001-[nombre].md"
+  - "docs/2-planning/epics/EPIC-002-[nombre].md"
+  - "docs/2-planning/epics-overview.md"
+
+next_steps:
+  - "*sprint-planning"
+  - "*tech-spec [epic]"
+  - "*create-story [epic]"

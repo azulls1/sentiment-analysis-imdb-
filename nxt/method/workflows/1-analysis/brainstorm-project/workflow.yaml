@@ -1,0 +1,90 @@
+name: brainstorm-project
+description: Sesión de brainstorming para generar y refinar ideas del proyecto
+phase: 1
+agent: analyst
+version: 1.0
+
+triggers:
+  - "*brainstorm"
+  - "*brainstorm [tema]"
+
+inputs:
+  - topic: "Tema o idea inicial del proyecto"
+  - constraints: "Restricciones conocidas (opcional)"
+
+purpose: |
+  Generar ideas creativas y explorar posibilidades para el proyecto.
+  El objetivo es expandir el pensamiento antes de converger en una solución.
+
+steps:
+  - name: "Entender el contexto"
+    action: "Recopilar información inicial"
+    questions:
+      - "¿Cuál es el problema principal que quieres resolver?"
+      - "¿Quién es el usuario objetivo?"
+      - "¿Hay restricciones de tiempo, presupuesto o tecnología?"
+      - "¿Existe algo similar en el mercado?"
+    output: context
+
+  - name: "Divergir - Generar ideas"
+    action: "Expandir posibilidades sin juzgar"
+    techniques:
+      - "Brainstorming clásico: generar muchas ideas rápidamente"
+      - "What if?: ¿Y si no tuviéramos esta restricción?"
+      - "Reverse brainstorming: ¿Cómo podríamos hacer esto peor?"
+      - "SCAMPER: Sustituir, Combinar, Adaptar, Modificar, Poner otros usos, Eliminar, Reordenar"
+    rules:
+      - "Cantidad sobre calidad (al principio)"
+      - "No juzgar ideas durante la generación"
+      - "Construir sobre ideas de otros"
+      - "Permitir ideas locas"
+    output: raw_ideas[]
+
+  - name: "Agrupar ideas"
+    action: "Organizar ideas por temas"
+    categories:
+      - "Features core"
+      - "Nice-to-have"
+      - "Innovaciones"
+      - "Riesgos/Desafíos"
+    output: grouped_ideas
+
+  - name: "Converger - Evaluar ideas"
+    action: "Filtrar y priorizar"
+    criteria:
+      - viability: "¿Es técnicamente factible?"
+      - desirability: "¿Lo quieren los usuarios?"
+      - feasibility: "¿Podemos hacerlo con los recursos disponibles?"
+      - innovation: "¿Qué tan diferenciador es?"
+    output: evaluated_ideas[]
+
+  - name: "Seleccionar ideas ganadoras"
+    action: "Elegir las mejores ideas para desarrollar"
+    method: "Dot voting o matriz de priorización"
+    output: selected_ideas[]
+
+  - name: "Documentar"
+    action: "Crear documento de brainstorming"
+    template: |
+      # Brainstorming: [Tema]
+
+      ## Contexto
+      [Problema, usuario, restricciones]
+
+      ## Ideas Generadas
+      [Lista de todas las ideas]
+
+      ## Ideas Seleccionadas
+      [Ideas priorizadas con justificación]
+
+      ## Próximos Pasos
+      [Qué hacer con estas ideas]
+    output: docs/1-analysis/brainstorming-[fecha].md
+
+outputs:
+  - docs/1-analysis/brainstorming-[fecha].md
+  - Lista de ideas priorizadas para el Project Brief
+
+next_steps:
+  - "Si hay claridad: *product-brief"
+  - "Si necesita más investigación: *research [tema]"

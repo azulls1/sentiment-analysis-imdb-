@@ -1,0 +1,168 @@
+name: analyze-codebase
+description: Análisis profundo de código existente para proyectos brownfield
+phase: 0
+agent: analyst
+version: 1.0
+project_type: brownfield
+
+triggers:
+  - "*analyze-codebase"
+  - "*analizar-codigo"
+
+inputs:
+  - project_directory: "Directorio del proyecto"
+  - focus_area: "Área específica a analizar (opcional)"
+
+purpose: |
+  Análisis técnico profundo del código existente.
+  Complementa document-project con análisis más detallado.
+
+steps:
+  - name: "Escanear estructura"
+    action: "Mapear estructura del proyecto"
+    analyze:
+      - "Árbol de directorios"
+      - "Patrones de organización"
+      - "Convenciones de naming"
+      - "Archivos de configuración"
+    output: project_structure
+
+  - name: "Detectar tech stack"
+    action: "Identificar tecnologías"
+    check_files:
+      - "package.json → Node/React/Vue/etc"
+      - "requirements.txt → Python"
+      - "go.mod → Go"
+      - "Cargo.toml → Rust"
+      - "pom.xml → Java"
+      - "Gemfile → Ruby"
+      - "composer.json → PHP"
+    identify:
+      - "Framework principal"
+      - "Librerías clave"
+      - "Versiones"
+      - "Dependencias de dev"
+    output: tech_stack
+
+  - name: "Analizar arquitectura"
+    action: "Entender patrones de arquitectura"
+    identify:
+      - "Patrón arquitectónico (MVC, Clean, Hexagonal, etc)"
+      - "Capas del sistema"
+      - "Módulos principales"
+      - "Puntos de entrada"
+      - "Manejo de estado"
+    output: architecture_analysis
+
+  - name: "Mapear componentes"
+    action: "Identificar componentes principales"
+    for_each_component:
+      - "Nombre"
+      - "Responsabilidad"
+      - "Dependencias"
+      - "Archivos incluidos"
+      - "LOC aproximado"
+    output: component_map
+
+  - name: "Analizar base de datos"
+    action: "Entender modelo de datos"
+    check:
+      - "Tipo de base de datos"
+      - "ORM utilizado"
+      - "Entidades/modelos"
+      - "Relaciones"
+      - "Migraciones existentes"
+    output: database_analysis
+
+  - name: "Analizar APIs"
+    action: "Mapear endpoints y contratos"
+    identify:
+      - "Rutas/endpoints"
+      - "Métodos HTTP"
+      - "Formatos de request/response"
+      - "Autenticación"
+      - "Documentación existente"
+    output: api_analysis
+
+  - name: "Evaluar calidad de código"
+    action: "Identificar code smells y deuda técnica"
+    check:
+      code_smells:
+        - "Funciones muy largas"
+        - "Clases muy grandes"
+        - "Código duplicado"
+        - "Acoplamiento alto"
+        - "Complejidad ciclomática alta"
+      test_coverage:
+        - "Tests existentes"
+        - "Cobertura estimada"
+        - "Frameworks de testing"
+      documentation:
+        - "Comentarios en código"
+        - "README actualizado"
+        - "API docs"
+    output: code_quality
+
+  - name: "Identificar deuda técnica"
+    action: "Catalogar deuda técnica"
+    categories:
+      critical: "Bloquea desarrollo"
+      high: "Impacta significativamente"
+      medium: "Debería arreglarse"
+      low: "Nice to have"
+    for_each_item:
+      - "Descripción"
+      - "Ubicación"
+      - "Impacto"
+      - "Esfuerzo estimado"
+    output: tech_debt
+
+  - name: "Generar reporte"
+    action: "Consolidar análisis"
+    template: |
+      # Análisis de Codebase: [Proyecto]
+
+      ## 1. Resumen Ejecutivo
+      [Overview del proyecto]
+
+      ## 2. Tech Stack
+      | Categoría | Tecnología | Versión |
+      |-----------|------------|---------|
+
+      ## 3. Arquitectura
+      ### Patrón
+      [Descripción del patrón]
+
+      ### Diagrama de Componentes
+      [Mermaid diagram]
+
+      ## 4. Componentes Principales
+      [Lista de componentes con responsabilidades]
+
+      ## 5. Base de Datos
+      [Análisis del modelo de datos]
+
+      ## 6. APIs
+      [Endpoints principales]
+
+      ## 7. Calidad de Código
+      ### Fortalezas
+      - [Punto positivo]
+
+      ### Áreas de Mejora
+      - [Área]
+
+      ## 8. Deuda Técnica
+      | Prioridad | Item | Impacto | Esfuerzo |
+      |-----------|------|---------|----------|
+
+      ## 9. Recomendaciones
+      1. [Recomendación]
+
+outputs:
+  - "docs/1-analysis/codebase-analysis.md"
+  - "docs/1-analysis/tech-debt-inventory.md"
+
+next_steps:
+  - "*create-brownfield-prd"
+  - "*risk-assessment"

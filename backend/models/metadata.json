@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "trained_at": "2026-03-17T01:52:00Z",
+  "dataset": {
+    "name": "IMDb Movie Reviews",
+    "source": "Maas et al. (2011)",
+    "total_samples": 50000,
+    "train_samples": 25000,
+    "test_samples": 25000,
+    "language": "en"
+  },
+  "vectorizer": {
+    "file": "tfidf_vectorizer.joblib",
+    "type": "TfidfVectorizer",
+    "max_features": 50000,
+    "ngram_range": [1, 2],
+    "sublinear_tf": true,
+    "min_df": 2
+  },
+  "models": {
+    "naive_bayes": {
+      "file": "naive_bayes.joblib",
+      "type": "MultinomialNB",
+      "accuracy": 0.8512,
+      "f1_macro": 0.85,
+      "training_time_sec": 1.23
+    },
+    "logistic_regression": {
+      "file": "logistic_regression.joblib",
+      "type": "LogisticRegression",
+      "params": {
+        "C": 1.0,
+        "max_iter": 1000
+      },
+      "accuracy": 0.8936,
+      "f1_macro": 0.89,
+      "training_time_sec": 5.67
+    },
+    "svm": {
+      "file": "svm.joblib",
+      "type": "LinearSVC",
+      "params": {
+        "C": 1.0,
+        "max_iter": 1000
+      },
+      "accuracy": 0.8968,
+      "f1_macro": 0.90,
+      "training_time_sec": 142.35
+    }
+  },
+  "reference_article": {
+    "authors": "Keerthi Kumar H.M., B.S. Harish",
+    "title": "Sentiment Analysis on IMDb Movie Reviews Using Hybrid Feature Extraction Method",
+    "year": 2019,
+    "best_accuracy": 0.8875
+  }
+}

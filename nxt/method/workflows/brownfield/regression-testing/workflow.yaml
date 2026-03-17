@@ -1,0 +1,171 @@
+name: regression-testing
+description: Ejecuta y valida pruebas de regresión para proyectos brownfield
+phase: 4
+agent: qa
+version: 1.0
+project_type: brownfield
+
+triggers:
+  - "*regression-testing"
+  - "*regression [story|epic|sprint]"
+  - "*test-regression"
+
+inputs:
+  - scope: "Story, epic, o sprint a validar"
+  - existing_tests: "Tests existentes del proyecto"
+  - new_tests: "Tests nuevos agregados"
+
+purpose: |
+  Validar que los cambios en código existente no rompen
+  funcionalidad previa. Crítico para proyectos brownfield.
+
+steps:
+  - name: "Identificar scope de regresión"
+    action: "Determinar qué áreas testear"
+    based_on:
+      - "Archivos modificados"
+      - "Dependencias de archivos modificados"
+      - "Features relacionadas"
+    output: regression_scope
+
+  - name: "Mapear tests existentes"
+    action: "Encontrar tests relacionados"
+    search:
+      - "Tests unitarios para archivos modificados"
+      - "Tests de integración relacionados"
+      - "E2E que cubren features afectadas"
+    output: existing_test_map
+
+  - name: "Ejecutar tests automatizados"
+    action: "Correr suite de regresión"
+    execute:
+      unit_tests:
+        - "Tests de archivos modificados"
+        - "Tests de dependencias"
+      integration_tests:
+        - "Tests de APIs afectadas"
+        - "Tests de flujos relacionados"
+      e2e_tests:
+        - "Flujos críticos de usuario"
+    output: automated_results
+
+  - name: "Validar performance"
+    action: "Comparar métricas antes/después"
+    metrics:
+      - "Response time de endpoints afectados"
+      - "Query performance"
+      - "Memory usage"
+      - "Load time de páginas"
+    threshold: "No más de 10% degradación"
+    output: performance_comparison
+
+  - name: "Testing manual de regresión"
+    action: "Probar manualmente áreas críticas"
+    checklist:
+      - "Flujos principales siguen funcionando"
+      - "Edge cases conocidos"
+      - "Integraciones con sistemas externos"
+      - "Features que comparten código modificado"
+    output: manual_test_results
+
+  - name: "Validar rollback"
+    action: "Probar que se puede revertir"
+    steps:
+      - "Desactivar feature flag"
+      - "Verificar estado anterior funciona"
+      - "Verificar datos consistentes"
+    output: rollback_validation
+
+  - name: "Identificar regresiones"
+    action: "Catalogar problemas encontrados"
+    for_each_regression:
+      - "Descripción"
+      - "Severidad"
+      - "Área afectada"
+      - "Causa probable"
+      - "Story relacionada"
+    output: regressions_found
+
+  - name: "Generar reporte"
+    action: "Crear regression report"
+    template: |
+      # Regression Testing Report
+
+      ## Scope
+      - Story/Epic/Sprint: [ID]
+      - Fecha: [fecha]
+      - Áreas testeadas: [lista]
+
+      ## Resumen
+      | Métrica | Valor |
+      |---------|-------|
+      | Tests automatizados ejecutados | [N] |
+      | Tests pasados | [N] |
+      | Tests fallidos | [N] |
+      | Regresiones encontradas | [N] |
+      | Performance degradación | [%] |
+
+      ## Tests Automatizados
+
+      ### Unit Tests
+      | Suite | Passed | Failed | Skipped |
+      |-------|--------|--------|---------|
+
+      ### Integration Tests
+      | Suite | Passed | Failed | Skipped |
+      |-------|--------|--------|---------|
+
+      ### E2E Tests
+      | Flow | Status | Notes |
+      |------|--------|-------|
+
+      ## Performance Comparison
+      | Endpoint/Page | Before | After | Delta | Status |
+      |---------------|--------|-------|-------|--------|
+      | [endpoint] | [ms] | [ms] | [%] | ✅/❌ |
+
+      ## Manual Testing Results
+      | Area | Status | Notes |
+      |------|--------|-------|
+      | [area] | ✅/❌ | |
+
+      ## Regresiones Encontradas
+
+      ### REG-001: [Título]
+      - **Severidad**: [Critical/High/Medium/Low]
+      - **Área**: [área afectada]
+      - **Descripción**: [qué se rompió]
+      - **Causa**: [por qué]
+      - **Story relacionada**: [ID]
+      - **Acción requerida**: [fix/rollback/investigate]
+
+      ## Rollback Validation
+      - Feature flag test: [Pass/Fail]
+      - Estado anterior: [Funciona/No funciona]
+      - Datos consistentes: [Sí/No]
+
+      ## Veredicto
+      **[PASS - No regresiones / FAIL - Regresiones encontradas]**
+
+      ### Recomendación
+      - [ ] Proceder con deploy
+      - [ ] Requiere fixes antes de deploy
+      - [ ] Requiere rollback
+      - [ ] Requiere investigación
+
+      ## Próximos Pasos
+      1. [Acción 1]
+      2. [Acción 2]
+
+outputs:
+  - "docs/4-implementation/qa/regression-report-[scope].md"
+
+outcomes:
+  PASS: "No hay regresiones, proceder con deploy"
+  FAIL_MINOR: "Regresiones menores, fix y re-test"
+  FAIL_MAJOR: "Regresiones mayores, considerar rollback"
+  BLOCKED: "No se puede completar testing"
+
+next_steps:
+  if_pass: "Deploy/Release"
+  if_fail: "*dev-story (fixes) → *regression-testing"
