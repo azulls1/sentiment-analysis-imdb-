@@ -106,5 +106,25 @@ celerybeat.pid
 *.tmp
 *.temp
 .cache/
-forest-design-system/
+
+# ========================
+# NXT Development Framework (local only)
+# ========================
+.claude/
+.nxt/
+agentes/
+herramientas/
+hooks/
+nxt/
 nxt-ai-development/
+forest-design-system/
+plantillas/
+plugins/
+skills/
+templates/
+workflows/
+AGENTS.md
+CHANGELOG.md
+CLAUDE.md
+COMMAND-REFERENCE.md
+SKILLS.md
