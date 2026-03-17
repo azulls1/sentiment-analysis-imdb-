@@ -2,9 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# xhtml2pdf is pure Python - no system dependencies needed
+# System deps: WeasyPrint (GTK/Pango) + curl for healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    curl libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
+    libffi-dev shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
