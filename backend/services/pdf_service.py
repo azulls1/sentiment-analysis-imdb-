@@ -14,7 +14,7 @@ PDF_HTML_TEMPLATE = """
 <style>
     @page {
         size: A4;
-        margin: 2cm 2cm 2.5cm 2cm;
+        margin: 1.8cm 1.8cm 2cm 1.8cm;
     }
     * {
         margin: 0;
@@ -23,8 +23,8 @@ PDF_HTML_TEMPLATE = """
     }
     body {
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 9.5pt;
-        line-height: 1.4;
+        font-size: 9pt;
+        line-height: 1.35;
         color: #333;
     }
 
@@ -79,32 +79,32 @@ PDF_HTML_TEMPLATE = """
 
     /* Content sections */
     .section {
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
     h2 {
         color: #04202C;
-        font-size: 12pt;
+        font-size: 11pt;
         border-bottom: 2px solid #04202C;
         padding-bottom: 2px;
-        margin-bottom: 6px;
-        margin-top: 14px;
-    }
-    h3 {
-        color: #04202C;
-        font-size: 10pt;
         margin-bottom: 4px;
         margin-top: 10px;
     }
+    h3 {
+        color: #04202C;
+        font-size: 9.5pt;
+        margin-bottom: 3px;
+        margin-top: 7px;
+    }
     p {
         text-align: justify;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
     }
     ol, ul {
-        margin-left: 18px;
-        margin-bottom: 6px;
+        margin-left: 16px;
+        margin-bottom: 4px;
     }
     li {
-        margin-bottom: 2px;
+        margin-bottom: 1px;
     }
     code {
         background: #f4f4f4;
@@ -115,8 +115,8 @@ PDF_HTML_TEMPLATE = """
     table {
         width: 100%;
         border-collapse: collapse;
-        margin: 8px 0;
-        font-size: 9pt;
+        margin: 5px 0;
+        font-size: 8.5pt;
     }
     th {
         background: #04202C;
@@ -133,12 +133,13 @@ PDF_HTML_TEMPLATE = """
         color: #666;
         font-size: 9pt;
     }
-    ol.referencias {
-        font-size: 9pt;
-        line-height: 1.6;
-    }
-    ol.referencias li {
-        margin-bottom: 4px;
+    div.referencias p {
+        font-size: 8.5pt;
+        line-height: 1.4;
+        margin-bottom: 3px;
+        padding-left: 30px;
+        text-indent: -30px;
+        text-align: left;
     }
     a {
         color: #04202C;
