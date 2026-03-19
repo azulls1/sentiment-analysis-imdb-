@@ -124,7 +124,9 @@ interface PredictionResult {
               Escribe una reseña en inglés o español y analiza su sentimiento con el modelo SVM.
             </p>
             <div style="display:flex;gap:12px;">
+              <label for="predict-input" class="sr-only">Reseña para analizar</label>
               <input
+                id="predict-input"
                 class="input"
                 placeholder="e.g. This movie was fantastic... / Esta película fue increíble..."
                 [ngModel]="predictText()"
@@ -143,7 +145,7 @@ interface PredictionResult {
             </div>
           </div>
           @if (prediction()) {
-            <div style="margin-top:16px;">
+            <div style="margin-top:16px;" aria-live="polite">
               <div
                 [class]="prediction()!.positive ? 'alert alert-success' : 'alert alert-error'"
                 style="padding:12px 16px;border-radius:var(--radius-md);"
@@ -168,7 +170,7 @@ interface PredictionResult {
             </div>
           }
           @if (predictionError()) {
-            <div style="margin-top:16px;">
+            <div style="margin-top:16px;" aria-live="assertive">
               <div class="alert alert-error" style="padding:12px 16px;border-radius:var(--radius-md);">
                 No se pudo analizar la reseña. Verifica que el backend esté activo.
               </div>
@@ -181,21 +183,21 @@ interface PredictionResult {
         <div class="grid-features stagger-children">
           <a routerLink="/modelo" class="card-feature animate-fadeInUp" style="text-decoration:none;cursor:pointer;">
             <div class="card-feature__icon">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             </div>
             <h3 style="font-size:0.9375rem;font-weight:600;color:var(--color-text-primary);margin:0 0 4px;">Modelos</h3>
             <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin:0;">Métricas detalladas, matrices de confusión y comparación de clasificadores.</p>
           </a>
           <a routerLink="/pipeline" class="card-feature animate-fadeInUp" style="text-decoration:none;cursor:pointer;">
             <div class="card-feature__icon">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
             </div>
             <h3 style="font-size:0.9375rem;font-weight:600;color:var(--color-text-primary);margin:0 0 4px;">Pipeline NLP</h3>
             <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin:0;">Visualiza el pipeline de procesamiento de texto paso a paso.</p>
           </a>
           <a routerLink="/articulo" class="card-feature animate-fadeInUp" style="text-decoration:none;cursor:pointer;">
             <div class="card-feature__icon">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
             <h3 style="font-size:0.9375rem;font-weight:600;color:var(--color-text-primary);margin:0 0 4px;">Artículo</h3>
             <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin:0;">Lee el artículo de referencia de Keerthi Kumar & Harish (2019).</p>

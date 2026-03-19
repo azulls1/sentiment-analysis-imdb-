@@ -280,3 +280,52 @@ class TestModelDetails:
         data = response.json()
         assert "analisis" in data
         assert len(data["analisis"]) > 20
+
+
+class TestSecurityHeaders:
+    def test_security_headers_present(self, client):
+        """All responses should include security headers."""
+        response = client.get("/api/health")
+        assert response.headers.get("x-content-type-options") == "nosniff"
+        assert response.headers.get("x-frame-options") == "DENY"
+        assert response.headers.get("x-xss-protection") == "1; mode=block"
+        assert response.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+
+    def test_security_headers_on_error(self, client):
+        """Security headers should be present even on error responses."""
+        response = client.post("/api/model/predict", json={"text": "   "})
+        assert response.status_code == 400
+        assert response.headers.get("x-content-type-options") == "nosniff"
+
+
+class TestErrorSafety:
+    def test_error_does_not_leak_internals(self, client):
+        """Error responses should not expose internal details."""
+        response = client.post("/api/model/predict", json={})
+        # Should get validation error, not internal stack trace
+        assert response.status_code == 422
+
+    def test_argilla_validation_empty_labels(self, client):
+        """Argilla should reject empty labels list."""
+        response = client.post(
+            "/api/argilla/classify",
+            json={"text": "test", "labels": []},
+        )
+        assert response.status_code == 422
+
+    def test_argilla_validation_too_many_labels(self, client):
+        """Argilla should reject more than 20 labels."""
+        labels = [f"label_{i}" for i in range(25)]
+        response = client.post(
+            "/api/argilla/classify",
+            json={"text": "test", "labels": labels},
+        )
+        assert response.status_code == 422
+
+    def test_argilla_validation_long_label(self, client):
+        """Argilla should reject labels longer than 100 chars."""
+        response = client.post(
+            "/api/argilla/classify",
+            json={"text": "test", "labels": ["x" * 150]},
+        )
+        assert response.status_code == 422

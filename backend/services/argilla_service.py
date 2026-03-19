@@ -3,7 +3,10 @@ Zero-shot classification using transformers pipeline.
 Optional service - requires transformers + torch.
 """
 
+import threading
+
 _classifier_cache = {"instance": None, "loaded": False}
+_lock = threading.Lock()
 
 
 def classify_zero_shot(text: str, labels: list[str] = None) -> dict:
@@ -12,14 +15,16 @@ def classify_zero_shot(text: str, labels: list[str] = None) -> dict:
         labels = ["positive", "negative", "positivo", "negativo"]
 
     try:
-        if not _classifier_cache["loaded"]:
-            from transformers import pipeline
-            _classifier_cache["instance"] = pipeline(
-                "zero-shot-classification",
-                model="facebook/bart-large-mnli",
-            )
-            _classifier_cache["loaded"] = True
-        classifier = _classifier_cache["instance"]
+        with _lock:
+            if not _classifier_cache["loaded"]:
+                from transformers import pipeline
+                _classifier_cache["instance"] = pipeline(
+                    "zero-shot-classification",
+                    model="facebook/bart-large-mnli",
+                )
+                _classifier_cache["loaded"] = True
+            classifier = _classifier_cache["instance"]
+
         result = classifier(text, labels)
         return {
             "texto": text,

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 
 export interface ModalData {
   title: string;
@@ -24,6 +24,7 @@ export interface ModalData {
           role="dialog"
           aria-modal="true"
           [attr.aria-labelledby]="'modal-title'"
+          aria-describedby="modal-description"
         >
           <!-- Header -->
           <div class="flex items-center justify-between px-6 pt-6 pb-2">
@@ -35,6 +36,7 @@ export interface ModalData {
               {{ data?.title }}
             </h2>
             <button
+              #closeBtn
               class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition"
               style="color:var(--color-text-muted);"
               (click)="close()"
@@ -58,7 +60,7 @@ export interface ModalData {
 
           <!-- Description -->
           <div class="px-6 pb-4">
-            <p style="margin:0;font-size:0.875rem;line-height:1.7;color:var(--color-text-secondary);">
+            <p id="modal-description" style="margin:0;font-size:0.875rem;line-height:1.7;color:var(--color-text-secondary);">
               {{ data?.description }}
             </p>
           </div>
@@ -85,10 +87,27 @@ export interface ModalData {
   `,
   styles: [],
 })
-export class InfoModalComponent {
+export class InfoModalComponent implements OnChanges {
   @Input() visible = false;
   @Input() data: ModalData | null = null;
   @Output() closed = new EventEmitter<void>();
+
+  @ViewChild('closeBtn') closeBtn!: ElementRef<HTMLButtonElement>;
+
+  private previouslyFocused: HTMLElement | null = null;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['visible']) {
+      if (this.visible) {
+        this.previouslyFocused = document.activeElement as HTMLElement;
+        // Focus the close button after the view renders
+        setTimeout(() => this.closeBtn?.nativeElement?.focus(), 0);
+      } else if (this.previouslyFocused) {
+        this.previouslyFocused.focus();
+        this.previouslyFocused = null;
+      }
+    }
+  }
 
   @HostListener('document:keydown.escape')
   onEscape() {

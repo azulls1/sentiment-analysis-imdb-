@@ -1,5 +1,6 @@
 import os
 import re
+import threading
 from backend.data.model_results import (
     MODEL_RESULTS,
     COMPARISON_TABLE,
@@ -22,28 +23,31 @@ _ml_models = {
     "available": False,
 }
 
+_ml_lock = threading.Lock()
+
 
 def _load_ml_models():
     """Try to load serialized ML models from backend/models/. Only attempts once."""
-    if _ml_models["loaded"]:
-        return _ml_models["available"]
+    with _ml_lock:
+        if _ml_models["loaded"]:
+            return _ml_models["available"]
 
-    _ml_models["loaded"] = True
-    models_dir = os.path.join(os.path.dirname(__file__), "..", "models")
-    vectorizer_path = os.path.join(models_dir, "tfidf_vectorizer.joblib")
-    svm_path = os.path.join(models_dir, "svm.joblib")
+        _ml_models["loaded"] = True
+        models_dir = os.path.join(os.path.dirname(__file__), "..", "models")
+        vectorizer_path = os.path.join(models_dir, "tfidf_vectorizer.joblib")
+        svm_path = os.path.join(models_dir, "svm.joblib")
 
-    if not os.path.exists(vectorizer_path) or not os.path.exists(svm_path):
-        return False
+        if not os.path.exists(vectorizer_path) or not os.path.exists(svm_path):
+            return False
 
-    try:
-        import joblib
-        _ml_models["vectorizer"] = joblib.load(vectorizer_path)
-        _ml_models["svm"] = joblib.load(svm_path)
-        _ml_models["available"] = True
-        return True
-    except Exception:
-        return False
+        try:
+            import joblib
+            _ml_models["vectorizer"] = joblib.load(vectorizer_path)
+            _ml_models["svm"] = joblib.load(svm_path)
+            _ml_models["available"] = True
+            return True
+        except Exception:
+            return False
 
 
 def get_model_results() -> dict:

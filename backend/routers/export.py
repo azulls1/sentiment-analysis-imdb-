@@ -24,8 +24,8 @@ def export_pdf():
             headers={"Content-Disposition": "attachment; filename=informe.pdf"},
         )
     except Exception as e:
-        logger.error(f"PDF generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
+        logger.error("Error in export_pdf: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/notebook")
@@ -39,8 +39,8 @@ def export_notebook():
             headers={"Content-Disposition": "attachment; filename=notebook.ipynb"},
         )
     except Exception as e:
-        logger.error(f"Notebook generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generating notebook: {str(e)}")
+        logger.error("Error in export_notebook: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/zip")
@@ -62,5 +62,5 @@ def export_zip():
             headers={"Content-Disposition": f"attachment; filename={ZIP_FILENAME}"},
         )
     except Exception as e:
-        logger.error(f"ZIP generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generating ZIP: {str(e)}")
+        logger.error("Error in export_zip: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")

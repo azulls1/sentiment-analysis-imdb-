@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from backend.services.model_service import (
@@ -7,6 +8,8 @@ from backend.services.model_service import (
     start_training,
     predict_sentiment,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/model", tags=["model"])
 
@@ -21,7 +24,8 @@ def train_models():
     try:
         return start_training()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error starting training: {str(e)}")
+        logger.error("Error in train_models: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/status")
@@ -30,7 +34,8 @@ def training_status():
     try:
         return get_training_status()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving training status: {str(e)}")
+        logger.error("Error in training_status: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.post("/predict")
@@ -41,7 +46,8 @@ def predict(request: PredictRequest):
     try:
         return predict_sentiment(request.text)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error predicting sentiment: {str(e)}")
+        logger.error("Error in predict: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/comparison")
@@ -50,7 +56,8 @@ def model_comparison():
     try:
         return get_comparison()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving comparison: {str(e)}")
+        logger.error("Error in model_comparison: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/results")
@@ -59,4 +66,5 @@ def model_results():
     try:
         return get_model_results()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving results: {str(e)}")
+        logger.error("Error in model_results: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")

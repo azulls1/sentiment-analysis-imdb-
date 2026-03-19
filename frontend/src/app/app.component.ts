@@ -8,7 +8,8 @@ import { HeaderComponent } from './shared/components/header/header.component';
   standalone: true,
   imports: [RouterOutlet, SidebarComponent, HeaderComponent],
   template: `
-    <app-header (menuToggle)="sidebarOpen.set(!sidebarOpen())" />
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+    <app-header [menuOpen]="sidebarOpen()" (menuToggle)="sidebarOpen.set(!sidebarOpen())" />
 
     <div class="layout-body">
       <app-sidebar [class.open]="sidebarOpen()" />
@@ -17,12 +18,25 @@ import { HeaderComponent } from './shared/components/header/header.component';
         <div class="overlay" (click)="sidebarOpen.set(false)"></div>
       }
 
-      <main class="app-main">
+      <main class="app-main" id="main-content">
         <router-outlet />
       </main>
     </div>
   `,
   styles: [`
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-forest);
+      color: white;
+      padding: 8px 16px;
+      z-index: 100;
+      transition: top 0.2s;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
     :host {
       display: flex;
       flex-direction: column;

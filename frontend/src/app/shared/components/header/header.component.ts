@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -6,11 +6,11 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <header class="navbar" style="flex-shrink:0;z-index:50;width:100%;">
+    <header class="navbar" aria-label="Navegación principal" style="flex-shrink:0;z-index:50;width:100%;">
       <div class="navbar-inner">
         <!-- Izquierda: hamburguesa (móvil) + branding -->
         <div style="display:flex;align-items:center;gap:12px;">
-          <button class="menu-toggle" (click)="menuToggle.emit()" aria-label="Abrir menú">
+          <button class="menu-toggle" (click)="menuToggle.emit()" aria-label="Menú de navegación" [attr.aria-expanded]="menuOpen">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/>
               <line x1="3" y1="12" x2="21" y2="12"/>
@@ -49,5 +49,6 @@ import { RouterLink } from '@angular/router';
   styles: [],
 })
 export class HeaderComponent {
+  @Input() menuOpen = false;
   @Output() menuToggle = new EventEmitter<void>();
 }

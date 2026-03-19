@@ -6,14 +6,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   template: `
-    <aside class="sidebar" style="position:fixed;display:flex;flex-direction:column;top:56px;height:calc(100vh - 56px);overflow-y:auto;">
+    <aside class="sidebar" role="navigation" aria-label="Menú lateral" style="position:fixed;display:flex;flex-direction:column;top:56px;height:calc(100vh - 56px);overflow-y:auto;">
       <nav style="flex:1;padding:16px 8px;" class="stagger-children">
         @for (item of navItems; track item.path) {
           <a
             [routerLink]="item.path"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+            #rla="routerLinkActive"
             class="sidebar-link animate-fadeIn"
+            [attr.aria-current]="rla.isActive ? 'page' : null"
           >
             <svg class="sidebar-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               @switch (item.icon) {

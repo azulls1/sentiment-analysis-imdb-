@@ -1,5 +1,8 @@
+import logging
 from fastapi import APIRouter, HTTPException
 from backend.data.article_data import ARTICLE_SUMMARY
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/article", tags=["article"])
 
@@ -10,4 +13,5 @@ def article_summary():
     try:
         return ARTICLE_SUMMARY
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving article: {str(e)}")
+        logger.error("Error in article_summary: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")

@@ -1,5 +1,8 @@
+import logging
 from fastapi import APIRouter, HTTPException
 from backend.services.dataset_service import get_dataset_stats, get_sample_reviews
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/dataset", tags=["dataset"])
 
@@ -10,7 +13,8 @@ def dataset_stats():
     try:
         return get_dataset_stats()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving dataset stats: {str(e)}")
+        logger.error("Error in dataset_stats: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
 
 
 @router.get("/samples")
@@ -19,4 +23,5 @@ def dataset_samples(limit: int = 8):
     try:
         return get_sample_reviews(limit)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving samples: {str(e)}")
+        logger.error("Error in dataset_samples: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error processing request")
