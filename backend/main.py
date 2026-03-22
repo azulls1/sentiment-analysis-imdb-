@@ -95,7 +95,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     Endpoints excluded from authentication:
     * ``/`` - root info
     * ``/docs``, ``/openapi.json``, ``/redoc`` - Swagger / OpenAPI UI
-    * ``/api/v1/health`` and ``/api/health`` - health checks
+    * ``/api/health`` and ``/api/health`` - health checks
     """
 
     # Paths that never require authentication
@@ -166,12 +166,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     ``slowapi`` or an API-gateway (nginx, Envoy, Kong).
 
     Recommended per-endpoint limits (for future implementation):
-    * ``POST /api/v1/predict``   — 10 req/min  (expensive ML inference)
-    * ``POST /api/v1/export/*``  — 5 req/min   (PDF/report generation)
-    * ``GET  /api/v1/datasets``  — 60 req/min  (read-heavy, cacheable)
-    * ``GET  /api/v1/articles``  — 60 req/min  (read-heavy, cacheable)
+    * ``POST /api/predict``   — 10 req/min  (expensive ML inference)
+    * ``POST /api/export/*``  — 5 req/min   (PDF/report generation)
+    * ``GET  /api/datasets``  — 60 req/min  (read-heavy, cacheable)
+    * ``GET  /api/articles``  — 60 req/min  (read-heavy, cacheable)
     * ``GET  /api/health``       — 120 req/min (monitoring probes)
-    * ``POST /api/v1/argilla/*`` — 20 req/min  (annotation writes)
+    * ``POST /api/argilla/*`` — 20 req/min  (annotation writes)
     -----------------------------------------------------------------
     """
 
@@ -419,7 +419,7 @@ app.add_middleware(RequestTimeoutMiddleware)
 app.add_middleware(RateLimitMiddleware)
 
 # ---------------------------------------------------------------------------
-# Routers – mounted under /api/v1 prefix for API versioning
+# Routers – mounted under /api prefix for API versioning
 # ---------------------------------------------------------------------------
 app.include_router(dataset.router)
 app.include_router(article.router)
@@ -439,7 +439,7 @@ def root() -> dict:
     }
 
 
-@app.get("/api/v1/metrics")
+@app.get("/api/metrics")
 def api_metrics(
     request: Request,
     format: str = Query("json", description="Output format: json or prometheus"),

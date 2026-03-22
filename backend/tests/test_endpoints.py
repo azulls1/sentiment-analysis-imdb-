@@ -19,7 +19,7 @@ class TestRootEndpoints:
 
 class TestDatasetEndpoints:
     def test_stats(self, client):
-        response = client.get("/api/v1/dataset/stats")
+        response = client.get("/api/dataset/stats")
         assert response.status_code == 200
         data = response.json()
         assert data["total"] == 50000
@@ -28,7 +28,7 @@ class TestDatasetEndpoints:
         assert "clases" in data
 
     def test_samples_default(self, client):
-        response = client.get("/api/v1/dataset/samples")
+        response = client.get("/api/dataset/samples")
         assert response.status_code == 200
         data = response.json()
         assert "data" in data
@@ -37,13 +37,13 @@ class TestDatasetEndpoints:
         assert len(data["data"]) == 8
 
     def test_samples_with_per_page(self, client):
-        response = client.get("/api/v1/dataset/samples?per_page=3")
+        response = client.get("/api/dataset/samples?per_page=3")
         assert response.status_code == 200
         data = response.json()
         assert len(data["data"]) == 3
 
     def test_sample_structure(self, client):
-        response = client.get("/api/v1/dataset/samples?per_page=1")
+        response = client.get("/api/dataset/samples?per_page=1")
         sample = response.json()["data"][0]
         assert "texto" in sample
         assert "sentimiento" in sample
@@ -54,7 +54,7 @@ class TestDatasetEndpoints:
 
     def test_samples_pagination_metadata(self, client):
         """Samples should include pagination metadata."""
-        response = client.get("/api/v1/dataset/samples?page=1&per_page=3")
+        response = client.get("/api/dataset/samples?page=1&per_page=3")
         assert response.status_code == 200
         data = response.json()
         pag = data["pagination"]
@@ -68,8 +68,8 @@ class TestDatasetEndpoints:
 
     def test_samples_pagination_page_2(self, client):
         """Page 2 should return different items than page 1."""
-        r1 = client.get("/api/v1/dataset/samples?page=1&per_page=2")
-        r2 = client.get("/api/v1/dataset/samples?page=2&per_page=2")
+        r1 = client.get("/api/dataset/samples?page=1&per_page=2")
+        r2 = client.get("/api/dataset/samples?page=2&per_page=2")
         d1 = r1.json()["data"]
         d2 = r2.json()["data"]
         # If enough data exists, page 2 items differ from page 1
@@ -79,7 +79,7 @@ class TestDatasetEndpoints:
 
 class TestArticleEndpoints:
     def test_summary(self, client):
-        response = client.get("/api/v1/article/summary")
+        response = client.get("/api/article/summary")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -87,7 +87,7 @@ class TestArticleEndpoints:
 
 class TestModelEndpoints:
     def test_results(self, client):
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         assert response.status_code == 200
         data = response.json()
         assert "naive_bayes" in data
@@ -95,7 +95,7 @@ class TestModelEndpoints:
         assert "svm" in data
 
     def test_model_has_metrics(self, client):
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         svm = response.json()["svm"]
         assert "accuracy" in svm
         assert "confusion_matrix" in svm
@@ -103,7 +103,7 @@ class TestModelEndpoints:
         assert svm["accuracy"] == 0.8968
 
     def test_comparison(self, client):
-        response = client.get("/api/v1/model/comparison")
+        response = client.get("/api/model/comparison")
         assert response.status_code == 200
         data = response.json()
         assert data["mejor_modelo"] == "SVM"
@@ -111,20 +111,20 @@ class TestModelEndpoints:
         assert len(data["modelos"]) == 5  # 2 baselines + 3 models
 
     def test_status(self, client):
-        response = client.get("/api/v1/model/status")
+        response = client.get("/api/model/status")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "completed"
         assert data["progress"] == 100
 
     def test_train(self, client):
-        response = client.post("/api/v1/model/train")
+        response = client.post("/api/model/train")
         assert response.status_code == 201
         data = response.json()
         assert data["status"] == "completed"
 
     def test_predict_positive(self, client):
-        response = client.post("/api/v1/model/predict", json={"text": "This movie was great and amazing"})
+        response = client.post("/api/model/predict", json={"text": "This movie was great and amazing"})
         assert response.status_code == 201
         data = response.json()
         assert data["sentimiento"] == "positivo"
@@ -132,37 +132,37 @@ class TestModelEndpoints:
         assert "scores" in data
 
     def test_predict_negative(self, client):
-        response = client.post("/api/v1/model/predict", json={"text": "Terrible awful boring waste of time"})
+        response = client.post("/api/model/predict", json={"text": "Terrible awful boring waste of time"})
         assert response.status_code == 201
         data = response.json()
         assert data["sentimiento"] == "negativo"
 
     def test_predict_empty_text(self, client):
-        response = client.post("/api/v1/model/predict", json={"text": "   "})
+        response = client.post("/api/model/predict", json={"text": "   "})
         assert response.status_code == 400
 
     def test_predict_no_keywords(self, client):
-        response = client.post("/api/v1/model/predict", json={"text": "The sky is blue today"})
+        response = client.post("/api/model/predict", json={"text": "The sky is blue today"})
         assert response.status_code == 201
         data = response.json()
         assert "sentimiento" in data
         assert 0 < data["confianza"] <= 1
 
     def test_predict_with_negation(self, client):
-        response = client.post("/api/v1/model/predict", json={"text": "This movie is not good at all"})
+        response = client.post("/api/model/predict", json={"text": "This movie is not good at all"})
         assert response.status_code == 201
         data = response.json()
         assert data["sentimiento"] == "negativo"
 
     def test_predict_returns_201(self, client):
         """POST /predict should return 201 (resource created)."""
-        response = client.post("/api/v1/model/predict", json={"text": "good movie"})
+        response = client.post("/api/model/predict", json={"text": "good movie"})
         assert response.status_code == 201
 
 
 class TestReportEndpoints:
     def test_content(self, client):
-        response = client.get("/api/v1/report/content")
+        response = client.get("/api/report/content")
         assert response.status_code == 200
         data = response.json()
         assert "metadata" in data
@@ -171,31 +171,31 @@ class TestReportEndpoints:
 
 class TestExportEndpoints:
     def test_notebook(self, client):
-        response = client.get("/api/v1/export/notebook")
+        response = client.get("/api/export/notebook")
         assert response.status_code == 200
         assert "ipynb" in response.headers.get("content-disposition", "")
 
     def test_pdf(self, client):
-        response = client.get("/api/v1/export/pdf")
+        response = client.get("/api/export/pdf")
         assert response.status_code == 200
         assert "pdf" in response.headers.get("content-disposition", "")
 
     def test_zip(self, client):
-        response = client.get("/api/v1/export/zip")
+        response = client.get("/api/export/zip")
         assert response.status_code == 200
         assert "zip" in response.headers.get("content-disposition", "")
 
 
 class TestArgillaEndpoints:
     def test_health(self, client):
-        response = client.get("/api/v1/argilla/health")
+        response = client.get("/api/argilla/health")
         assert response.status_code == 200
         data = response.json()
         assert "status" in data
 
     def test_classify(self, client):
         response = client.post(
-            "/api/v1/argilla/classify",
+            "/api/argilla/classify",
             json={"text": "I love this movie", "labels": ["positive", "negative"]},
         )
         assert response.status_code == 201
@@ -207,7 +207,7 @@ class TestArgillaEndpoints:
     def test_classify_returns_201(self, client):
         """POST /classify should return 201."""
         response = client.post(
-            "/api/v1/argilla/classify",
+            "/api/argilla/classify",
             json={"text": "test", "labels": ["a", "b"]},
         )
         assert response.status_code == 201
@@ -217,60 +217,60 @@ class TestInputValidation:
     def test_predict_too_long_text(self, client):
         """Reject text over 10000 characters."""
         long_text = "great " * 2000  # 12000 chars
-        response = client.post("/api/v1/model/predict", json={"text": long_text})
+        response = client.post("/api/model/predict", json={"text": long_text})
         assert response.status_code == 422  # Pydantic validation
 
     def test_predict_missing_text(self, client):
         """Reject request without text field."""
-        response = client.post("/api/v1/model/predict", json={})
+        response = client.post("/api/model/predict", json={})
         assert response.status_code == 422
 
     def test_predict_unicode_text(self, client):
         """Handle Unicode text correctly."""
-        response = client.post("/api/v1/model/predict", json={"text": "Esta pelicula fue increible"})
+        response = client.post("/api/model/predict", json={"text": "Esta pelicula fue increible"})
         assert response.status_code == 201
         data = response.json()
         assert "sentimiento" in data
 
     def test_predict_html_text(self, client):
         """Handle HTML in text without breaking."""
-        response = client.post("/api/v1/model/predict", json={"text": "<script>alert('xss')</script> great movie"})
+        response = client.post("/api/model/predict", json={"text": "<script>alert('xss')</script> great movie"})
         assert response.status_code == 201
 
     def test_predict_only_whitespace(self, client):
         """Reject whitespace-only text."""
-        response = client.post("/api/v1/model/predict", json={"text": "   \n\t  "})
+        response = client.post("/api/model/predict", json={"text": "   \n\t  "})
         assert response.status_code == 400
 
 
 class TestExportValidation:
     def test_pdf_content_type(self, client):
         """PDF should return correct content type."""
-        response = client.get("/api/v1/export/pdf")
+        response = client.get("/api/export/pdf")
         assert response.status_code == 200
         assert "application/pdf" in response.headers.get("content-type", "")
 
     def test_notebook_content_type(self, client):
         """Notebook should return correct content type."""
-        response = client.get("/api/v1/export/notebook")
+        response = client.get("/api/export/notebook")
         assert response.status_code == 200
         assert "ipynb" in response.headers.get("content-type", "") or "json" in response.headers.get("content-type", "")
 
     def test_zip_content_type(self, client):
         """ZIP should return correct content type."""
-        response = client.get("/api/v1/export/zip")
+        response = client.get("/api/export/zip")
         assert response.status_code == 200
         assert "zip" in response.headers.get("content-type", "")
 
     def test_pdf_not_empty(self, client):
         """PDF should have content."""
-        response = client.get("/api/v1/export/pdf")
+        response = client.get("/api/export/pdf")
         assert len(response.content) > 100
 
     def test_notebook_valid_json(self, client):
         """Notebook should be valid JSON."""
         import json
-        response = client.get("/api/v1/export/notebook")
+        response = client.get("/api/export/notebook")
         nb = json.loads(response.content)
         assert "cells" in nb
         assert "metadata" in nb
@@ -280,7 +280,7 @@ class TestExportValidation:
         """ZIP should contain pdf and notebook."""
         import zipfile
         import io
-        response = client.get("/api/v1/export/zip")
+        response = client.get("/api/export/zip")
         with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
             names = zf.namelist()
             assert "informe.pdf" in names
@@ -290,7 +290,7 @@ class TestExportValidation:
 class TestModelDetails:
     def test_each_model_has_confusion_matrix(self, client):
         """Each model should have a confusion matrix."""
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         data = response.json()
         for model_name in ["naive_bayes", "logistic_regression", "svm"]:
             assert "confusion_matrix" in data[model_name], f"{model_name} missing confusion_matrix"
@@ -300,7 +300,7 @@ class TestModelDetails:
 
     def test_accuracy_within_range(self, client):
         """All accuracies should be between 0 and 1."""
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         data = response.json()
         for model_name in ["naive_bayes", "logistic_regression", "svm"]:
             acc = data[model_name]["accuracy"]
@@ -308,26 +308,26 @@ class TestModelDetails:
 
     def test_svm_is_best_model(self, client):
         """SVM should have the highest accuracy."""
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         data = response.json()
         assert data["svm"]["accuracy"] >= data["naive_bayes"]["accuracy"]
         assert data["svm"]["accuracy"] >= data["logistic_regression"]["accuracy"]
 
     def test_comparison_has_analysis(self, client):
         """Comparison should include analysis text."""
-        response = client.get("/api/v1/model/comparison")
+        response = client.get("/api/model/comparison")
         data = response.json()
         assert "analisis" in data
         assert len(data["analisis"]) > 20
 
     def test_results_cache_control(self, client):
         """Model results should have Cache-Control header."""
-        response = client.get("/api/v1/model/results")
+        response = client.get("/api/model/results")
         assert "max-age" in response.headers.get("cache-control", "")
 
     def test_comparison_cache_control(self, client):
         """Model comparison should have Cache-Control header."""
-        response = client.get("/api/v1/model/comparison")
+        response = client.get("/api/model/comparison")
         assert "immutable" in response.headers.get("cache-control", "")
 
 
@@ -342,7 +342,7 @@ class TestSecurityHeaders:
 
     def test_security_headers_on_error(self, client):
         """Security headers should be present even on error responses."""
-        response = client.post("/api/v1/model/predict", json={"text": "   "})
+        response = client.post("/api/model/predict", json={"text": "   "})
         assert response.status_code == 400
         assert response.headers.get("x-content-type-options") == "nosniff"
 
@@ -369,19 +369,19 @@ class TestRequestIDTracking:
 
     def test_request_id_on_v1_endpoints(self, client):
         """V1 endpoints should also include X-Request-ID."""
-        response = client.get("/api/v1/dataset/stats")
+        response = client.get("/api/dataset/stats")
         assert response.headers.get("x-request-id") is not None
 
 
 class TestAPIKeyAuth:
     def test_no_key_when_not_configured(self, client):
         """When API_KEY is not set, all endpoints are accessible."""
-        response = client.get("/api/v1/dataset/stats")
+        response = client.get("/api/dataset/stats")
         assert response.status_code == 200
 
     def test_401_without_key(self, unauthed_client):
         """When API_KEY is set, requests without key get 401."""
-        response = unauthed_client.get("/api/v1/dataset/stats")
+        response = unauthed_client.get("/api/dataset/stats")
         assert response.status_code == 401
         data = response.json()
         assert "detail" in data
@@ -389,7 +389,7 @@ class TestAPIKeyAuth:
 
     def test_200_with_correct_key(self, authed_client):
         """When API_KEY is set, requests with correct key succeed."""
-        response = authed_client.get("/api/v1/dataset/stats")
+        response = authed_client.get("/api/dataset/stats")
         assert response.status_code == 200
 
     def test_health_exempt(self, unauthed_client):
@@ -407,7 +407,7 @@ class TestHTMLSanitization:
     def test_predict_sanitizes_html_in_output(self, client):
         """Prediction output should have HTML-escaped text."""
         xss_text = '<script>alert("xss")</script> great movie'
-        response = client.post("/api/v1/model/predict", json={"text": xss_text})
+        response = client.post("/api/model/predict", json={"text": xss_text})
         assert response.status_code == 201
         data = response.json()
         # The output text should be HTML-escaped
@@ -416,7 +416,7 @@ class TestHTMLSanitization:
 
     def test_sanitization_preserves_meaning(self, client):
         """Sanitization should not break sentiment detection."""
-        response = client.post("/api/v1/model/predict", json={"text": "great <b>movie</b>"})
+        response = client.post("/api/model/predict", json={"text": "great <b>movie</b>"})
         assert response.status_code == 201
         data = response.json()
         assert data["sentimiento"] == "positivo"
@@ -425,14 +425,14 @@ class TestHTMLSanitization:
 class TestErrorSafety:
     def test_error_does_not_leak_internals(self, client):
         """Error responses should not expose internal details."""
-        response = client.post("/api/v1/model/predict", json={})
+        response = client.post("/api/model/predict", json={})
         # Should get validation error, not internal stack trace
         assert response.status_code == 422
 
     def test_argilla_validation_empty_labels(self, client):
         """Argilla should reject empty labels list."""
         response = client.post(
-            "/api/v1/argilla/classify",
+            "/api/argilla/classify",
             json={"text": "test", "labels": []},
         )
         assert response.status_code == 422
@@ -441,7 +441,7 @@ class TestErrorSafety:
         """Argilla should reject more than 20 labels."""
         labels = [f"label_{i}" for i in range(25)]
         response = client.post(
-            "/api/v1/argilla/classify",
+            "/api/argilla/classify",
             json={"text": "test", "labels": labels},
         )
         assert response.status_code == 422
@@ -449,14 +449,14 @@ class TestErrorSafety:
     def test_argilla_validation_long_label(self, client):
         """Argilla should reject labels longer than 100 chars."""
         response = client.post(
-            "/api/v1/argilla/classify",
+            "/api/argilla/classify",
             json={"text": "test", "labels": ["x" * 150]},
         )
         assert response.status_code == 422
 
     def test_standardized_error_format(self, unauthed_client):
         """Error responses should follow {detail, code} format."""
-        response = unauthed_client.get("/api/v1/dataset/stats")
+        response = unauthed_client.get("/api/dataset/stats")
         assert response.status_code == 401
         data = response.json()
         assert "detail" in data
@@ -570,13 +570,13 @@ class TestHealthCheckDetail:
 class TestMiddlewareErrorHandling:
     def test_request_id_on_error_response(self, client):
         """X-Request-ID should be present even on error responses."""
-        response = client.post("/api/v1/model/predict", json={"text": "   "})
+        response = client.post("/api/model/predict", json={"text": "   "})
         assert response.status_code == 400
         assert response.headers.get("x-request-id") is not None
 
     def test_security_headers_on_all_responses(self, client):
         """Security headers should be on every response including errors."""
-        response = client.post("/api/v1/model/predict", json={})
+        response = client.post("/api/model/predict", json={})
         assert response.status_code == 422
         assert response.headers.get("x-content-type-options") == "nosniff"
         assert response.headers.get("x-frame-options") == "DENY"
@@ -585,7 +585,7 @@ class TestMiddlewareErrorHandling:
         """Custom X-Request-ID should be echoed back even on error."""
         custom_id = "test-error-req-id-456"
         response = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": "   "},
             headers={"X-Request-ID": custom_id},
         )
@@ -606,7 +606,7 @@ class TestEdgeCaseEndpoints:
 
     def test_predict_unicode_chinese(self, client):
         """Prediction should handle Chinese Unicode text gracefully."""
-        response = client.post("/api/v1/model/predict", json={"text": "这部电影非常精彩，我很喜欢"})
+        response = client.post("/api/model/predict", json={"text": "这部电影非常精彩，我很喜欢"})
         assert response.status_code == 201
         data = response.json()
         assert "sentimiento" in data
@@ -615,7 +615,7 @@ class TestEdgeCaseEndpoints:
 
     def test_predict_unicode_arabic(self, client):
         """Prediction should handle Arabic Unicode text gracefully."""
-        response = client.post("/api/v1/model/predict", json={"text": "هذا الفيلم كان رائعا جدا"})
+        response = client.post("/api/model/predict", json={"text": "هذا الفيلم كان رائعا جدا"})
         assert response.status_code == 201
         data = response.json()
         assert "sentimiento" in data
@@ -623,7 +623,7 @@ class TestEdgeCaseEndpoints:
     def test_predict_unicode_emoji(self, client):
         """Prediction should handle emoji-heavy text gracefully."""
         response = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": "Great movie! 🎬🍿👍 Loved it! ❤️🔥"},
         )
         assert response.status_code == 201
@@ -634,14 +634,14 @@ class TestEdgeCaseEndpoints:
         """Prediction should accept text just under the 10000 char limit."""
         # Build text of exactly 9999 chars
         text = ("great " * 1667)[:9999]
-        response = client.post("/api/v1/model/predict", json={"text": text})
+        response = client.post("/api/model/predict", json={"text": text})
         assert response.status_code == 201
         data = response.json()
         assert "sentimiento" in data
 
     def test_samples_page_beyond_total(self, client):
         """Requesting a page beyond total pages should return empty data."""
-        response = client.get("/api/v1/dataset/samples?page=99999&per_page=8")
+        response = client.get("/api/dataset/samples?page=99999&per_page=8")
         assert response.status_code == 200
         data = response.json()
         assert "data" in data
@@ -651,7 +651,7 @@ class TestEdgeCaseEndpoints:
     def test_export_pdf_accept_header(self, client):
         """PDF export should work regardless of Accept header."""
         response = client.get(
-            "/api/v1/export/pdf",
+            "/api/export/pdf",
             headers={"Accept": "text/html"},
         )
         assert response.status_code == 200
@@ -660,7 +660,7 @@ class TestEdgeCaseEndpoints:
     def test_export_notebook_accept_json(self, client):
         """Notebook export should work with Accept: application/json."""
         response = client.get(
-            "/api/v1/export/notebook",
+            "/api/export/notebook",
             headers={"Accept": "application/json"},
         )
         assert response.status_code == 200
@@ -683,7 +683,7 @@ class TestEdgeCaseEndpoints:
 
     def test_metrics_endpoint_exists(self, client):
         """Metrics endpoint should return collected metrics."""
-        response = client.get("/api/v1/metrics")
+        response = client.get("/api/metrics")
         assert response.status_code == 200
         data = response.json()
         assert "total_requests" in data
@@ -691,7 +691,7 @@ class TestEdgeCaseEndpoints:
 
     def test_metrics_prometheus_format(self, client):
         """Metrics endpoint should support Prometheus format."""
-        response = client.get("/api/v1/metrics?format=prometheus")
+        response = client.get("/api/metrics?format=prometheus")
         assert response.status_code == 200
         body = response.text
         assert "app_uptime_seconds" in body
@@ -699,7 +699,7 @@ class TestEdgeCaseEndpoints:
 
     def test_metrics_requires_key_when_configured(self, unauthed_client):
         """Metrics should return 401 when API_KEY is set but not provided."""
-        response = unauthed_client.get("/api/v1/metrics")
+        response = unauthed_client.get("/api/metrics")
         assert response.status_code == 401
 
 

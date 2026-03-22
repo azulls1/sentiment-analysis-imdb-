@@ -8,7 +8,7 @@ from backend.services.argilla_service import classify_zero_shot
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/argilla", tags=["argilla"])
+router = APIRouter(prefix="/api/argilla", tags=["argilla"])
 
 
 class ZeroShotRequest(BaseModel):

@@ -14,7 +14,7 @@ from backend.services.model_service import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/model", tags=["model"])
+router = APIRouter(prefix="/api/model", tags=["model"])
 
 
 class PredictScores(BaseModel):

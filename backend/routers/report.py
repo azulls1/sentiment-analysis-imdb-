@@ -6,7 +6,7 @@ from backend.services.db_service import get_report_sections, get_report_metadata
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/report", tags=["report"])
+router = APIRouter(prefix="/api/report", tags=["report"])
 
 
 @router.get("/content")

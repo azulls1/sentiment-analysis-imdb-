@@ -6,7 +6,7 @@ from backend.data.article_data import ARTICLE_SUMMARY
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/article", tags=["article"])
+router = APIRouter(prefix="/api/article", tags=["article"])
 
 
 @router.get("/summary")

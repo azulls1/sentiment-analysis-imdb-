@@ -13,7 +13,7 @@ class TestPredictFlow:
     def test_predict_returns_valid_format(self, client):
         """Predict endpoint returns all required fields with correct types."""
         resp = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": "This movie was absolutely fantastic!"},
         )
         assert resp.status_code == 201
@@ -31,25 +31,25 @@ class TestPredictFlow:
     def test_predict_then_metrics_updated(self, client):
         """After a prediction the metrics endpoint reflects the new count."""
         # Get baseline prediction count
-        metrics_before = client.get("/api/v1/metrics").json()
+        metrics_before = client.get("/api/metrics").json()
         total_before = metrics_before.get("predictions", {}).get("total_predictions", 0)
 
         # Make a prediction
         resp = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": "Terrible movie, waste of time."},
         )
         assert resp.status_code == 201
 
         # Verify metrics incremented
-        metrics_after = client.get("/api/v1/metrics").json()
+        metrics_after = client.get("/api/metrics").json()
         total_after = metrics_after["predictions"]["total_predictions"]
         assert total_after > total_before
 
     def test_predict_spanish_text(self, client):
         """Prediction works for Spanish text and detects language correctly."""
         resp = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": "Esta película es absolutamente terrible y aburrida."},
         )
         assert resp.status_code == 201
@@ -63,7 +63,7 @@ class TestExportPdfFlow:
 
     def test_export_pdf_content_type_and_length(self, client):
         """PDF export returns correct media type and non-empty content."""
-        resp = client.get("/api/v1/export/pdf")
+        resp = client.get("/api/export/pdf")
         assert resp.status_code == 200
         assert resp.headers["content-type"].startswith("application/pdf")
         # StreamingResponse may not set Content-Length; verify body is non-empty
@@ -71,7 +71,7 @@ class TestExportPdfFlow:
 
     def test_export_pdf_has_etag(self, client):
         """PDF export includes an ETag for cache validation."""
-        resp = client.get("/api/v1/export/pdf")
+        resp = client.get("/api/export/pdf")
         assert resp.status_code == 200
         assert "etag" in resp.headers
 
@@ -97,13 +97,13 @@ class TestFullFlow:
         """Simulate a user browsing stats, viewing samples, making a prediction,
         and downloading a report -- all in one flow."""
         # 1. Get dataset stats
-        stats_resp = client.get("/api/v1/dataset/stats")
+        stats_resp = client.get("/api/dataset/stats")
         assert stats_resp.status_code == 200
         stats = stats_resp.json()
         assert stats["total"] == 50000
 
         # 2. Get sample reviews (paginated response)
-        samples_resp = client.get("/api/v1/dataset/samples")
+        samples_resp = client.get("/api/dataset/samples")
         assert samples_resp.status_code == 200
         samples_body = samples_resp.json()
         assert "data" in samples_body
@@ -113,7 +113,7 @@ class TestFullFlow:
         # 3. Make a prediction using text from the first sample
         sample_text = samples[0]["texto"]
         predict_resp = client.post(
-            "/api/v1/model/predict",
+            "/api/model/predict",
             json={"text": sample_text},
         )
         assert predict_resp.status_code == 201
@@ -121,18 +121,18 @@ class TestFullFlow:
         assert "sentimiento" in prediction
 
         # 4. Export PDF
-        pdf_resp = client.get("/api/v1/export/pdf")
+        pdf_resp = client.get("/api/export/pdf")
         assert pdf_resp.status_code == 200
         assert len(pdf_resp.content) > 100  # PDF is non-trivial
 
     def test_comparison_and_results_consistency(self, client):
         """Model comparison and detailed results should reference the same models."""
-        comparison_resp = client.get("/api/v1/model/comparison")
+        comparison_resp = client.get("/api/model/comparison")
         assert comparison_resp.status_code == 200
         comparison = comparison_resp.json()
         assert comparison["mejor_modelo"] == "SVM"
 
-        results_resp = client.get("/api/v1/model/results")
+        results_resp = client.get("/api/model/results")
         assert results_resp.status_code == 200
         results = results_resp.json()
         assert "svm" in results

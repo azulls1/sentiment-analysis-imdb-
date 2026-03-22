@@ -19,7 +19,7 @@ from backend.services.notebook_service import generate_notebook_bytes
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/export", tags=["export"])
+router = APIRouter(prefix="/api/export", tags=["export"])
 
 ZIP_FILENAME = "entrega_actividad2_SAMAEL.zip"
 

@@ -6,7 +6,7 @@ from backend.services.dataset_service import get_dataset_stats, get_sample_revie
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/dataset", tags=["dataset"])
+router = APIRouter(prefix="/api/dataset", tags=["dataset"])
 
 
 @router.get(
