@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 
 interface Ejemplo {
   codigo?: string;
@@ -37,6 +37,7 @@ interface Paso {
   selector: 'app-argilla',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -65,7 +66,7 @@ interface Paso {
       <!-- Grid de secciones -->
       <div class="stagger-children" style="display:grid;grid-template-columns:1fr;gap:20px;margin-bottom:32px;">
         @for (sec of seccionesFiltradas(); track sec.id) {
-          <div class="card animate-fadeInUp argilla-card" (click)="abrirModal(sec)">
+          <div class="card animate-fadeInUp argilla-card" role="button" tabindex="0" (click)="abrirModal(sec)" (keydown.enter)="abrirModal(sec)">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
               <div style="display:flex;align-items:center;gap:12px;">
                 <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;"

@@ -1,0 +1,92 @@
+groups:
+  - name: imdb-sentiment
+    rules:
+      # ----------------------------------------------------------------
+      # 1. High Error Rate (Critical)
+      # ----------------------------------------------------------------
+      - alert: HighErrorRate
+        expr: >
+          (rate(app_errors_total[5m]) / rate(app_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: imdb-sentiment
+        annotations:
+          summary: "High error rate detected (> 5% 5xx in 5 min)"
+          description: >
+            The 5xx error rate for imdb-sentiment has exceeded 5% over the
+            last 5 minutes.  Current value: {{ $value | humanizePercentage }}.
+          runbook_url: "https://github.com/shernandez/imdb-sentiment/blob/main/docs/alerting-rules.md#1-high-error-rate"
+
+      # ----------------------------------------------------------------
+      # 2. High Latency (Warning)
+      # ----------------------------------------------------------------
+      - alert: HighLatency
+        expr: >
+          histogram_quantile(0.95,
+            rate(app_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: imdb-sentiment
+        annotations:
+          summary: "P95 latency exceeds 2 s"
+          description: >
+            The 95th-percentile request latency has been above 2 seconds
+            for the last 5 minutes.  Current P95: {{ $value | humanizeDuration }}.
+          runbook_url: "https://github.com/shernandez/imdb-sentiment/blob/main/docs/alerting-rules.md#2-high-latency"
+
+      # ----------------------------------------------------------------
+      # 3. ML Prediction Drift (Warning)
+      # ----------------------------------------------------------------
+      - alert: MLDrift
+        expr: >
+          abs(ml_positive_ratio - 0.50) > 0.15
+        for: 10m
+        labels:
+          severity: warning
+          service: imdb-sentiment
+        annotations:
+          summary: "ML prediction drift detected"
+          description: >
+            The positive-prediction ratio has deviated more than 15% from
+            the 50% baseline for the past 10 minutes.
+            Current ratio: {{ $value | humanizePercentage }}.
+          runbook_url: "https://github.com/shernandez/imdb-sentiment/blob/main/docs/alerting-rules.md#3-ml-prediction-drift"
+
+      # ----------------------------------------------------------------
+      # 4. Health Check Failure (Critical)
+      # ----------------------------------------------------------------
+      - alert: HealthCheckFailure
+        expr: >
+          up{job="imdb-sentiment"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: imdb-sentiment
+        annotations:
+          summary: "IMDb Sentiment API is down"
+          description: >
+            The /api/health endpoint has been unreachable for 2 minutes.
+            Check container status and Docker daemon.
+          runbook_url: "https://github.com/shernandez/imdb-sentiment/blob/main/docs/alerting-rules.md#4-health-check-failure"
+
+      # ----------------------------------------------------------------
+      # 5. High Memory Usage (Warning)
+      # ----------------------------------------------------------------
+      - alert: HighMemoryUsage
+        expr: >
+          (container_memory_usage_bytes{container="imdb-backend"}
+           / container_spec_memory_limit_bytes{container="imdb-backend"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: imdb-sentiment
+        annotations:
+          summary: "Backend container memory usage above 85%"
+          description: >
+            The imdb-backend container is using more than 85% of its
+            memory limit for the past 5 minutes.
+            Current usage: {{ $value | humanizePercentage }}.
+          runbook_url: "https://github.com/shernandez/imdb-sentiment/blob/main/docs/alerting-rules.md#5-high-memory-usage"

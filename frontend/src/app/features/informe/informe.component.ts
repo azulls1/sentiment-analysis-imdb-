@@ -1,12 +1,16 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { ReportService } from '../../core/services/report.service';
 
 @Component({
   selector: 'app-informe',
   standalone: true,
-  imports: [LoadingSpinnerComponent],
+  imports: [LoadingSpinnerComponent, SafeHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="page page-medium">
       <div class="page-header animate-fadeIn">
@@ -14,6 +18,9 @@ import { ReportService } from '../../core/services/report.service';
         <p class="page-header__desc">Vista previa del informe PDF — Actividad 2: Analisis de Sentimientos</p>
       </div>
 
+      <!-- NOTE: For large reports with many sections, consider implementing
+           virtual scrolling (@angular/cdk/scrolling) to reduce initial DOM size
+           and improve Time-to-Interactive on low-end devices. -->
       @if (loading()) {
         <app-loading-spinner />
       } @else if (report()) {
@@ -45,7 +52,7 @@ import { ReportService } from '../../core/services/report.service';
             </p>
             <div class="informe-grid">
               @for (sec of seccionesInfo; track sec.key; let i = $index) {
-                <div class="informe-card" (click)="abrirModal(i)">
+                <div class="informe-card" role="button" tabindex="0" (click)="abrirModal(i)" (keydown.enter)="abrirModal(i)">
                   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                     <div class="informe-card-icon" [style.background]="sec.color + '22'" [style.color]="sec.color">
                       {{ sec.icono }}
@@ -73,11 +80,11 @@ import { ReportService } from '../../core/services/report.service';
                   {{ entry.value.titulo }}
                 </h3>
                 <button class="informe-detail-btn" (click)="abrirModal(i)">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                   Detalle
                 </button>
               </div>
-              <div class="report-content" [innerHTML]="sanitize(entry.value.contenido)"></div>
+              <div class="report-content" [innerHTML]="entry.value.contenido | safeHtml"></div>
             </div>
           }
 
@@ -141,7 +148,7 @@ import { ReportService } from '../../core/services/report.service';
                 </div>
 
                 <!-- Full HTML content -->
-                <div class="report-content" [innerHTML]="sanitize(getBlockContent(modalSection()!))"></div>
+                <div class="report-content" [innerHTML]="getBlockContent(modalSection()!) | safeHtml"></div>
 
               </div>
 
@@ -172,37 +179,37 @@ import { ReportService } from '../../core/services/report.service';
   `,
   styles: [`
     /* ===== Report content styles (HTML from API) ===== */
-    :host ::ng-deep .report-content p {
+    .report-content p {
       margin: 0 0 10px;
       text-align: justify;
       line-height: 1.7;
       font-size: 0.875rem;
       color: var(--color-text-secondary);
     }
-    :host ::ng-deep .report-content h3 {
+    .report-content h3 {
       color: var(--color-text-primary);
       margin: 18px 0 8px;
       font-size: 0.9rem;
       font-weight: 600;
     }
-    :host ::ng-deep .report-content ul,
-    :host ::ng-deep .report-content ol {
+    .report-content ul,
+    .report-content ol {
       padding-left: 20px;
       margin: 8px 0;
       font-size: 0.85rem;
       color: var(--color-text-secondary);
       line-height: 1.6;
     }
-    :host ::ng-deep .report-content li {
+    .report-content li {
       margin: 4px 0;
     }
-    :host ::ng-deep .report-content table {
+    .report-content table {
       width: 100%;
       border-collapse: collapse;
       margin: 14px 0;
       font-size: 0.8rem;
     }
-    :host ::ng-deep .report-content th {
+    .report-content th {
       background: var(--color-text-primary, #04202C);
       color: white;
       padding: 8px 10px;
@@ -212,26 +219,26 @@ import { ReportService } from '../../core/services/report.service';
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
-    :host ::ng-deep .report-content td {
+    .report-content td {
       padding: 7px 10px;
       border-bottom: 1px solid var(--color-border, #DFE4E0);
       color: var(--color-text-primary);
     }
-    :host ::ng-deep .report-content tr:nth-child(even) td {
+    .report-content tr:nth-child(even) td {
       background: var(--color-bg-muted, #F7F8F7);
     }
-    :host ::ng-deep .report-content code {
+    .report-content code {
       font-family: 'JetBrains Mono', ui-monospace, monospace;
       background: var(--color-bg-muted, #F7F8F7);
       padding: 1px 5px;
       border-radius: 4px;
       font-size: 0.8rem;
     }
-    :host ::ng-deep .report-content em {
+    .report-content em {
       color: var(--color-text-muted);
       font-size: 0.8rem;
     }
-    :host ::ng-deep .report-content a {
+    .report-content a {
       color: var(--color-text-accent, #5B7065);
       text-decoration: none;
     }
@@ -323,6 +330,16 @@ import { ReportService } from '../../core/services/report.service';
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
       animation: modalSlideIn 0.25s ease;
     }
+    @media (max-width: 640px) {
+      .informe-modal-panel {
+        max-height: 75vh;
+        border-radius: 12px 12px 0 0;
+      }
+      .informe-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+    }
 
     .informe-modal-header {
       display: flex;
@@ -411,11 +428,13 @@ import { ReportService } from '../../core/services/report.service';
     }
   `],
 })
-export class InformeComponent implements OnInit {
+export class InformeComponent implements OnInit, OnDestroy {
   loading = signal(true);
   report = signal<any>(null);
   blockEntries = signal<{ key: string; value: any }[]>([]);
   modalSection = signal<number | null>(null);
+
+  private destroy$ = new Subject<void>();
 
   seccionesInfo: any[] = [
     {
@@ -540,14 +559,7 @@ export class InformeComponent implements OnInit {
     },
   ];
 
-  constructor(
-    private reportService: ReportService,
-    private sanitizer: DomSanitizer,
-  ) {}
-
-  sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
-  }
+  constructor(private reportService: ReportService) {}
 
   abrirModal(i: number) {
     this.modalSection.set(i);
@@ -565,7 +577,7 @@ export class InformeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.reportService.getContent().subscribe({
+    this.reportService.getContent().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.report.set(data);
         this.blockEntries.set(
@@ -575,5 +587,10 @@ export class InformeComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ExportService } from '../../core/services/export.service';
 import { environment } from '../../../environments/environment';
@@ -12,6 +12,7 @@ interface ChecklistItem {
 @Component({
   selector: 'app-entregables',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -44,7 +45,8 @@ interface ChecklistItem {
         <div class="entregables-grid">
           @for (ent of entregables; track ent.key; let i = $index) {
             <div class="entregable-card" [class.entregable-card-primary]="ent.destacado"
-                 [style.border-left-color]="ent.color" (click)="abrirModalEntregable(i)">
+                 [style.border-left-color]="ent.color" role="button" tabindex="0"
+                 (click)="abrirModalEntregable(i)" (keydown.enter)="abrirModalEntregable(i)">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
                 <div class="entregable-icon" [style.background]="ent.color">
                   {{ ent.icono }}
@@ -94,7 +96,7 @@ interface ChecklistItem {
 
         <div class="criterios-grid">
           @for (c of criterios; track c.num; let i = $index) {
-            <div class="criterio-card" (click)="abrirModalCriterio(i)" [style.border-top-color]="c.color">
+            <div class="criterio-card" role="button" tabindex="0" (click)="abrirModalCriterio(i)" (keydown.enter)="abrirModalCriterio(i)" [style.border-top-color]="c.color">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                 <span style="font-size:1.1rem;">{{ c.icono }}</span>
                 <span style="font-size:0.65rem;font-weight:700;color:white;padding:2px 8px;border-radius:10px;" [style.background]="c.color">
@@ -196,7 +198,9 @@ interface ChecklistItem {
             <span style="font-size:0.78rem;font-weight:500;color:var(--color-text-secondary);">Progreso de verificacion</span>
             <span style="font-size:0.82rem;font-weight:700;color:var(--color-text-primary);">{{ checkedCount() }} / {{ checklist().length }}</span>
           </div>
-          <div style="height:10px;background:var(--color-bg-muted,#E8E8E8);border-radius:6px;overflow:hidden;">
+          <div style="height:10px;background:var(--color-bg-muted,#E8E8E8);border-radius:6px;overflow:hidden;"
+               role="progressbar" [attr.aria-valuenow]="checklistPercent()" aria-valuemin="0" aria-valuemax="100"
+               aria-label="Progreso de verificacion">
             <div style="height:100%;border-radius:6px;background:#2D6A4F;transition:width 0.3s ease;"
                  [style.width]="checklistPercent() + '%'"></div>
           </div>
@@ -398,6 +402,10 @@ interface ChecklistItem {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0,0,0,0.06);
     }
+    .entregable-card:focus-visible {
+      outline: 2px solid var(--color-forest, #04202C);
+      outline-offset: 2px;
+    }
     .entregable-card-primary {
       border-width: 2px;
       border-left-width: 4px;
@@ -446,6 +454,10 @@ interface ChecklistItem {
     .criterio-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+    .criterio-card:focus-visible {
+      outline: 2px solid var(--color-forest, #04202C);
+      outline-offset: 2px;
     }
 
     /* Report structure rows */
@@ -504,6 +516,19 @@ interface ChecklistItem {
       flex-direction: column;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
       animation: entSlideIn 0.25s ease;
+    }
+    @media (max-width: 640px) {
+      .ent-modal-panel {
+        max-height: 75vh;
+        border-radius: 12px 12px 0 0;
+      }
+      .ent-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .checklist-grid {
+        grid-template-columns: 1fr;
+      }
     }
     .ent-modal-header {
       display: flex;

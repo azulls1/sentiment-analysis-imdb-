@@ -1,15 +1,22 @@
+version: "3.8"
+
 services:
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        APP_ENV: production
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
       - CORS_ORIGINS=http://localhost,http://localhost:4200,https://imdb-sentiment.iagentek.com.mx
-    restart: unless-stopped
+    # FIX 3: Run 4 uvicorn workers for better throughput
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    restart: on-failure:5
+    stop_grace_period: 30s
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
@@ -26,6 +33,16 @@ services:
         limits:
           memory: 2G
           cpus: '1.0'
+    volumes:
+      - model-data:/app/backend/models
+    networks:
+      - imdb-network
+    # Docker secrets (production usage):
+    # secrets:
+    #   - supabase_url
+    #   - supabase_anon_key
+    #   - supabase_service_key
+    # Then reference as /run/secrets/<name> in app config
 
   frontend:
     build:
@@ -36,9 +53,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    restart: unless-stopped
+    restart: on-failure:5
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -48,3 +65,29 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    networks:
+      - imdb-network
+
+volumes:
+  model-data:
+    driver: local
+    # Persists trained ML models (*.joblib) across container restarts
+
+networks:
+  imdb-network:
+    driver: bridge
+    name: imdb-sentiment-network
+
+# Docker secrets definition (uncomment for production):
+# secrets:
+#   supabase_url:
+#     file: ./secrets/supabase_url.txt
+#   supabase_anon_key:
+#     file: ./secrets/supabase_anon_key.txt
+#   supabase_service_key:
+#     file: ./secrets/supabase_service_key.txt

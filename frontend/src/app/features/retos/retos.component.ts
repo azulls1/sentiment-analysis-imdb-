@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { UpperCasePipe } from '@angular/common';
 
 interface Ejemplo {
@@ -42,6 +42,7 @@ interface Reto {
   selector: 'app-retos',
   standalone: true,
   imports: [UpperCasePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -95,7 +96,8 @@ interface Reto {
       <div class="stagger-children" style="display:grid;grid-template-columns:1fr;gap:20px;">
         @for (reto of retosFiltrados(); track reto.id) {
           <div class="card animate-fadeInUp reto-card"
-               (click)="abrirModal(reto)">
+               role="button" tabindex="0"
+               (click)="abrirModal(reto)" (keydown.enter)="abrirModal(reto)">
             <!-- Header con importancia -->
             <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
               <div style="display:flex;align-items:center;gap:12px;">
@@ -357,6 +359,14 @@ interface Reto {
     }
     .modal-close-btn:hover {
       background: var(--color-border, #d1d5db);
+    }
+    .modal-close-btn:focus-visible {
+      outline: 2px solid var(--color-forest, #04202C);
+      outline-offset: 2px;
+    }
+    .reto-card:focus-visible {
+      outline: 2px solid var(--color-forest, #04202C);
+      outline-offset: 2px;
     }
   `],
 })

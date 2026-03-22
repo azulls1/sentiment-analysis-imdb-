@@ -97,6 +97,7 @@ export interface ReportMetadata {
   universidad: string;
   programa: string;
   asignatura: string;
+  actividad?: string;
   autor: string;
   fecha: string;
 }
@@ -104,5 +105,68 @@ export interface ReportMetadata {
 /** Report content response */
 export interface ReportContent {
   metadata: ReportMetadata;
-  blocks: ReportSection[];
+  blocks: Record<string, ReportSection>;
+}
+
+/** Article summary for the reference paper */
+export interface ArticleSummary {
+  titulo: string;
+  titulo_original: string;
+  autores: string;
+  revista: string;
+  anio: number;
+  doi: string;
+  abstract: string;
+  keywords: string[];
+  objetivo: {
+    principal: string;
+    especificos: string[];
+    hipotesis: string;
+  };
+  dataset: {
+    nombre: string;
+    descripcion: string;
+    total_reviews: number;
+    train_reviews: number;
+    test_reviews: number;
+    positivas: number;
+    negativas: number;
+    balance: string;
+    idioma: string;
+    dominio: string;
+    tipo_tarea: string;
+    referencia_dataset: string;
+  };
+  metodologia: {
+    preprocesamiento: { paso: string; descripcion: string }[];
+    extraccion_features: { nombre: string; descripcion: string; formula?: string; ventaja: string; limitacion: string }[];
+    clasificadores: { nombre: string; descripcion: string; ventaja: string; limitacion: string }[];
+    evaluacion: {
+      descripcion: string;
+      metrica_principal: string;
+      otras_metricas: string[];
+      validacion: string;
+    };
+  };
+  resultados_clave: Record<string, Record<string, number>>;
+  mejor_resultado: {
+    clasificador: string;
+    metodo: string;
+    accuracy: number;
+  };
+  analisis_resultados?: {
+    mejora_hibrido_vs_bow: Record<string, string>;
+    mejora_hibrido_vs_tfidf: Record<string, string>;
+    ranking_clasificadores: { posicion: number; clasificador: string; mejor_accuracy: number; razon: string }[];
+    hallazgos_clave: string[];
+    comparacion_trabajos_previos: { autores: string; metodo: string; accuracy: number; nota: string }[];
+  };
+  conclusiones: string[];
+  limitaciones?: string[];
+  trabajo_futuro?: string[];
+}
+
+/** API health check response */
+export interface HealthCheck {
+  status: string;
 }

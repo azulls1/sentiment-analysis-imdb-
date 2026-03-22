@@ -1,24 +1,29 @@
 import { Routes } from '@angular/router';
+import { apiHealthGuard } from './core/guards/api-health.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   {
     path: 'dashboard',
+    canActivate: [apiHealthGuard],
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
   },
   {
     path: 'dataset',
+    canActivate: [apiHealthGuard],
     loadComponent: () =>
       import('./features/dataset/dataset.component').then(m => m.DatasetComponent),
   },
   {
     path: 'modelo',
+    canActivate: [apiHealthGuard],
     loadComponent: () =>
       import('./features/modelo/modelo.component').then(m => m.ModeloComponent),
   },
   {
     path: 'articulo',
+    canActivate: [apiHealthGuard],
     loadComponent: () =>
       import('./features/articulo/articulo.component').then(m => m.ArticuloComponent),
   },
@@ -39,6 +44,7 @@ export const routes: Routes = [
   },
   {
     path: 'informe',
+    canActivate: [apiHealthGuard],
     loadComponent: () =>
       import('./features/informe/informe.component').then(m => m.InformeComponent),
   },

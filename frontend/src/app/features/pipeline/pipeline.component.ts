@@ -1,10 +1,11 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pipeline',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -31,7 +32,7 @@ import { FormsModule } from '@angular/forms';
         </p>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
           @for (step of steps; track step.nombre; let i = $index) {
-            <div class="pipeline-info-card" (click)="abrirModal(i)">
+            <div class="pipeline-info-card" role="button" tabindex="0" (click)="abrirModal(i)" (keydown.enter)="abrirModal(i)">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;"
                      [style.background]="step.color">
@@ -109,7 +110,7 @@ import { FormsModule } from '@angular/forms';
             <!-- Connector arrow -->
             @if (i > 0) {
               <div style="display:flex;justify-content:center;padding:4px 0;">
-                <svg width="24" height="24" viewBox="0 0 24 24" style="color:var(--color-text-muted);">
+                <svg width="24" height="24" viewBox="0 0 24 24" style="color:var(--color-text-muted);" aria-hidden="true">
                   <path d="M12 4v16M6 14l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>

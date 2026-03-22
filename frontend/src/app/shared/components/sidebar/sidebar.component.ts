@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <aside class="sidebar" role="navigation" aria-label="Menú lateral" style="position:fixed;display:flex;flex-direction:column;top:56px;height:calc(100vh - 56px);overflow-y:auto;">
+    <aside class="sidebar" role="navigation" aria-label="Menu lateral" style="position:fixed;display:flex;flex-direction:column;top:56px;height:calc(100vh - 56px);overflow-y:auto;">
       <nav style="flex:1;padding:16px 8px;" class="stagger-children">
         @for (item of navItems; track item.path) {
           <a
@@ -17,7 +18,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
             class="sidebar-link animate-fadeIn"
             [attr.aria-current]="rla.isActive ? 'page' : null"
           >
-            <svg class="sidebar-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="sidebar-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               @switch (item.icon) {
                 @case ('dashboard') {
                   <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -54,7 +55,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       </nav>
 
       <div style="padding:14px 16px;border-top:1px solid var(--color-border-subtle);font-size:0.75rem;color:var(--color-text-muted);">
-        <p style="margin:0;font-weight:500;color:var(--color-text-secondary);">Samael Hernández</p>
+        <p style="margin:0;font-weight:500;color:var(--color-text-secondary);">Samael Hernandez</p>
         <p style="margin:2px 0 0;font-size:0.65rem;">Marzo 2026</p>
       </div>
     </aside>
@@ -65,6 +66,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         transform: none !important;
       }
     }
+    .sidebar-link:focus-visible {
+      outline: 2px solid var(--color-forest, #04202C);
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
   `],
 })
 export class SidebarComponent {
@@ -72,7 +78,7 @@ export class SidebarComponent {
     { path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { path: '/dataset', label: 'Dataset', icon: 'dataset' },
     { path: '/modelo', label: 'Modelo', icon: 'modelo' },
-    { path: '/articulo', label: 'Artículo', icon: 'articulo' },
+    { path: '/articulo', label: 'Articulo', icon: 'articulo' },
     { path: '/retos', label: 'Retos TSA', icon: 'retos' },
     { path: '/argilla', label: 'Argilla', icon: 'argilla' },
     { path: '/pipeline', label: 'Pipeline NLP', icon: 'pipeline' },

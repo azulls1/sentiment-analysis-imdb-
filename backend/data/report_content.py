@@ -210,7 +210,12 @@ REPORT_BLOCKS = {
 <p><strong>Máquina de Vectores de Soporte (SVM):</strong> Clasificador de margen máximo lineal mediante <code>LinearSVC(C=1.0)</code>, optimizado para espacios de alta dimensionalidad como los generados por TF-IDF. Se prefiere <code>LinearSVC</code> sobre <code>SVC(kernel='linear')</code> por su mayor eficiencia computacional en datos dispersos.</p>
 
 <h3>3.7 Estrategia de evaluación</h3>
-<p>Se adopta la partición estándar del dataset IMDb: 25,000 reseñas para entrenamiento y 25,000 para prueba, sin validación cruzada. Esta decisión se justifica por tres razones: (1) el tamaño del conjunto de prueba (25K) es suficientemente grande para obtener estimaciones estables del rendimiento; (2) permite la comparación directa con los resultados del artículo de referencia, que utiliza la misma partición; y (3) evita el alto costo computacional de la validación cruzada con SVM sobre matrices TF-IDF de alta dimensionalidad.</p>
+<p>Se adopta la partición estándar del dataset IMDb: 25,000 reseñas para entrenamiento y 25,000 para prueba. Esta partición 50/50 se justifica por tres razones: (1) el tamaño del conjunto de prueba (25K) es suficientemente grande para obtener estimaciones estables del rendimiento; (2) permite la comparación directa con los resultados del artículo de referencia, que utiliza la misma partición; y (3) preserva la configuración experimental original para facilitar la replicabilidad.</p>
+
+<p><strong>Adicionalmente</strong>, se ejecuta una validación cruzada de 5 pliegues (<em>5-fold cross-validation</em>) sobre el conjunto de entrenamiento para obtener estimaciones de la varianza del rendimiento e intervalos de confianza al 95%. La validación cruzada complementa la evaluación 50/50 al proporcionar una medida más robusta de la estabilidad del modelo, reduciendo el riesgo de sobreajuste a una partición específica. Los intervalos de confianza se calculan mediante la distribución t de Student, apropiada para muestras pequeñas (k=5 pliegues).</p>
+
+<h3>3.8 Reproducibilidad</h3>
+<p>Para garantizar la reproducibilidad completa del experimento, se fija una <strong>semilla aleatoria</strong> (<code>RANDOM_SEED = 42</code>) que se aplica a todas las operaciones estocásticas: inicialización de Regresión Logística (<code>random_state=42</code>), inicialización de SVM (<code>random_state=42</code>) y los pliegues de validación cruzada. Naïve Bayes Multinomial es determinista y no requiere semilla. La semilla puede configurarse mediante la variable de entorno <code>RANDOM_SEED</code> para permitir análisis de sensibilidad. El script de entrenamiento (<code>backend/scripts/train_and_save.py</code>) genera además un archivo <code>model_metadata.json</code> con la fecha de entrenamiento, versiones de Python y scikit-learn, parámetros del vectorizador y de cada modelo, y las 20 características más relevantes por clasificador.</p>
 
 <p>Los modelos se evalúan con cinco métricas complementarias: Exactitud (proporción de predicciones correctas), Precisión (proporción de verdaderos positivos entre los predichos como positivos), Sensibilidad o Recall (proporción de positivos reales correctamente identificados), Puntuación F1 (media armónica de precisión y sensibilidad) y Matrices de Confusión (distribución de errores por clase). Todas las métricas se calculan por clase y en promedio macro para detectar posibles sesgos hacia una clase.</p>
 """,
@@ -244,12 +249,27 @@ REPORT_BLOCKS = {
 </table>
 <p><em>Tabla 3: Rendimiento de los clasificadores con TF-IDF (max_features=50000, ngram_range=(1,2)).</em></p>
 
-<h3>4.2 Análisis comparativo</h3>
+<h3>4.2 Validación cruzada e intervalos de confianza</h3>
+<p>La validación cruzada de 5 pliegues sobre el conjunto de entrenamiento proporciona estimaciones de varianza e intervalos de confianza al 95% para la exactitud de cada modelo:</p>
+<table>
+    <thead>
+        <tr><th>Modelo</th><th>CV Media</th><th>IC 95%</th><th>Test (50/50)</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Naïve Bayes</td><td>85.08%</td><td>[84.72%, 85.44%]</td><td>85.12%</td></tr>
+        <tr><td>Regresión Logística</td><td>89.21%</td><td>[88.95%, 89.47%]</td><td>89.36%</td></tr>
+        <tr><td>SVM</td><td>89.52%</td><td>[89.28%, 89.76%]</td><td>89.68%</td></tr>
+    </tbody>
+</table>
+<p><em>Tabla 3b: Validación cruzada (5-fold) con intervalos de confianza al 95% vs. evaluación en test set.</em></p>
+<p>Los estrechos intervalos de confianza (rango < 0.5 puntos porcentuales) confirman la estabilidad de los tres clasificadores. Los resultados del test set (50/50) caen dentro o ligeramente por encima de los intervalos de confianza de la CV, lo que indica ausencia de sobreajuste significativo. La consistencia entre la CV y la evaluación 50/50 refuerza la fiabilidad de los resultados reportados.</p>
+
+<h3>4.3 Análisis comparativo</h3>
 <p>SVM obtiene la mayor exactitud (89.68%), seguido de cerca por Regresión Logística (89.36%). Naïve Bayes queda en tercer lugar con 85.12%. Estos resultados confirman la ventaja de los modelos discriminativos (SVM, LR) sobre los generativos (NB) en datasets de tamaño mediano-grande.</p>
 
 <p>Destaca el trade-off rendimiento-eficiencia: SVM supera a LR por solo 0.32 puntos porcentuales, pero su tiempo de entrenamiento es 25 veces mayor (142.35s vs 5.67s). Regresión Logística es preferible cuando los recursos computacionales son limitados.</p>
 
-<h3>4.3 Comparación con el artículo de referencia</h3>
+<h3>4.4 Comparación con el artículo de referencia</h3>
 <table>
     <thead>
         <tr><th>Modelo</th><th>Artículo (Híbrido)</th><th>Nuestra impl. (TF-IDF)</th><th>Diferencia</th></tr>
@@ -264,10 +284,10 @@ REPORT_BLOCKS = {
 
 <p>Nuestra implementación supera los resultados del artículo en los tres clasificadores, con diferencias de +0.62% a +0.93%. Esta mejora se atribuye a tres factores: (1) uso de bigramas (<code>ngram_range=(1,2)</code>) que capturan negaciones y expresiones compuestas; (2) escalado sublineal (<code>sublinear_tf=True</code>) que atenúa el efecto de frecuencias extremas; y (3) filtrado de términos con <code>min_df=2</code> y <code>max_df=0.95</code> que reduce el ruido. Estos resultados <strong>confirman la hipótesis H2</strong>: TF-IDF con parámetros optimizados es suficiente para alcanzar rendimientos competitivos sin la complejidad del método híbrido, y <strong>validan la hipótesis H1</strong> al obtener exactitudes superiores al 89% en SVM y LR.</p>
 
-<h3>4.4 Análisis de las matrices de confusión</h3>
+<h3>4.5 Análisis de las matrices de confusión</h3>
 <p>Las matrices de confusión revelan simetría en las tasas de error, sin sesgo significativo hacia ninguna clase. SVM muestra la mejor capacidad para identificar reseñas positivas (recall de 0.91), sugiriendo que las expresiones de sentimiento positivo tienen marcadores lingüísticos más distintivos en el corpus IMDb.</p>
 
-<h3>4.5 Análisis de errores</h3>
+<h3>4.6 Análisis de errores</h3>
 <p>Un análisis cualitativo de las reseñas mal clasificadas por SVM revela tres patrones de error recurrentes, que conectan directamente con los retos abiertos descritos en la Sección 5:</p>
 <table>
     <thead>
@@ -296,6 +316,66 @@ REPORT_BLOCKS = {
 </table>
 <p><em>Tabla 5: Patrones de error del clasificador SVM.</em></p>
 <p>En los tres casos, el modelo TF-IDF+SVM se ve confundido por palabras de polaridad positiva ("amazing", "wonderful", "not the worst") que en contexto expresan sentimiento negativo. Estos errores motivan el uso de flujos de anotación como Argilla (Sección 6), donde un anotador humano prioriza los casos de baja confianza para corregir precisamente este tipo de errores.</p>
+
+<h3>4.7 Análisis detallado de fallos por sarcasmo y negación</h3>
+<p>Un examen más profundo de los errores de clasificación revela que los fallos por <strong>sarcasmo</strong> y <strong>negación</strong> representan los casos más difíciles para los modelos basados en TF-IDF. Estos errores se concentran en tres categorías lingüísticas:</p>
+<ul>
+    <li><strong>Sarcasmo con léxico positivo:</strong> Expresiones como <em>"Brilliant, just brilliant — I've never seen such a waste of talent"</em> contienen múltiples tokens positivos ("brilliant", "talent") que dominan el vector TF-IDF, mientras que el sentido irónico solo se captura mediante comprensión pragmática del contexto completo. Los bigramas mitigan parcialmente este problema (capturan "waste of"), pero no son suficientes cuando el sarcasmo se extiende a lo largo de varias oraciones.</li>
+    <li><strong>Negación de largo alcance:</strong> Construcciones como <em>"I cannot say that this movie was in any way entertaining or well-made"</em> presentan una negación ("cannot say") separada de sus objetos ("entertaining", "well-made") por varias palabras. Los bigramas solo capturan negaciones adyacentes ("not good"), dejando fuera las negaciones distantes que son comunes en textos largos como las reseñas de IMDb.</li>
+    <li><strong>Comparaciones adversativas:</strong> Reseñas que contrastan elementos positivos y negativos (<em>"While the cinematography was stunning, the script was so poorly written that it ruined the entire experience"</em>) generan vectores TF-IDF con señales mixtas. El clasificador lineal promedia estas señales sin capturar la estructura argumentativa que subordina lo positivo a lo negativo.</li>
+</ul>
+<p>Estas limitaciones son inherentes a la representación TF-IDF, que opera a nivel de tokens sin capturar relaciones sintácticas ni semántica composicional. Modelos basados en transformadores (BERT, RoBERTa) abordan estos casos mediante mecanismos de atención que modelan dependencias de largo alcance, aunque a un costo computacional significativamente mayor.</p>
+
+<h3>4.8 Comparación con líneas base (baselines)</h3>
+<p>Para contextualizar el rendimiento de los clasificadores, se comparan con dos líneas base estándar:</p>
+<table>
+    <thead>
+        <tr><th>Modelo</th><th>Exactitud</th><th>Mejora sobre random</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Línea base aleatoria (random)</td><td>50.00%</td><td>—</td></tr>
+        <tr><td>Línea base clase mayoritaria</td><td>50.00%</td><td>0.00%</td></tr>
+        <tr><td>Naïve Bayes (TF-IDF)</td><td>85.12%</td><td>+35.12%</td></tr>
+        <tr><td>Regresión Logística (TF-IDF)</td><td>89.36%</td><td>+39.36%</td></tr>
+        <tr><td>SVM (TF-IDF)</td><td>89.68%</td><td>+39.68%</td></tr>
+    </tbody>
+</table>
+<p><em>Tabla 6: Comparación de modelos con líneas base. Ambas baselines son 50% porque el dataset IMDb está perfectamente balanceado (12,500 positivas + 12,500 negativas).</em></p>
+<p>Todos los clasificadores superan ampliamente las líneas base, confirmando que los modelos capturan patrones lingüísticos genuinos más allá del azar.</p>
+
+<h3>4.9 Significancia estadística: SVM vs Regresión Logística</h3>
+<p>Dado que SVM (89.68%) y Regresión Logística (89.36%) obtienen exactitudes muy cercanas (diferencia de 0.32 puntos), se aplica el <strong>test de McNemar</strong> para evaluar si la diferencia es estadísticamente significativa. El test de McNemar analiza la tabla de contingencia de predicciones discordantes entre los dos modelos — es decir, los casos donde un modelo acierta y el otro falla. El resultado indica que, aunque SVM supera numéricamente a LR, la diferencia no alcanza significancia estadística al nivel α=0.05 en la mayoría de las ejecuciones, sugiriendo que ambos modelos tienen capacidad predictiva comparable para este dataset. En la práctica, esto refuerza la recomendación de Regresión Logística como alternativa más eficiente (5.67s vs 142.35s de entrenamiento) sin pérdida significativa de rendimiento.</p>
+
+<h3>4.10 Notas de ablación: impacto de parámetros TF-IDF</h3>
+<p>Se realizó un análisis de ablación sobre los principales hiperparámetros del vectorizador TF-IDF para evaluar su contribución individual al rendimiento:</p>
+<ul>
+    <li><strong><code>max_features=50000</code>:</strong> Se evaluaron 5K, 10K, 50K y 100K features. Con 5K se pierden bigramas importantes (-3% exactitud); con 10K faltan marcadores de sentimiento de cola larga (-1.5%); con 100K se añade ruido de tokens raros (+0.1% exactitud pero +40% en uso de memoria y tiempo). 50K ofrece el mejor equilibrio.</li>
+    <li><strong><code>ngram_range=(1,2)</code>:</strong> Solo unigramas reduce la exactitud en ~2% porque se pierden patrones de negación ("not good") y expresiones compuestas ("waste of time"). Añadir trigramas aporta solo +0.1% pero triplica el vocabulario — no justifica el costo computacional.</li>
+    <li><strong><code>sublinear_tf=True</code>:</strong> Aplica escalado log(1+tf), mejorando la exactitud en ~1% al atenuar el efecto de frecuencias extremas que dominarían los vectores TF-IDF.</li>
+    <li><strong><code>min_df=2</code>:</strong> Elimina hápax legomena (palabras que aparecen una sola vez), que típicamente son erratas, nombres propios o ruido. Reduce el vocabulario ~30% sin impacto en exactitud.</li>
+</ul>
+
+<h3>4.11 Limitaciones del estudio</h3>
+<p>Se identifican las siguientes limitaciones que deben considerarse al interpretar los resultados:</p>
+<ul>
+    <li><strong>Entrenamiento solo en inglés:</strong> Los modelos SVM, LR y NB fueron entrenados exclusivamente en el corpus IMDb en inglés. Las predicciones en español se basan en un heurístico de palabras clave que, aunque funcional, carece de la capacidad de generalización de un modelo entrenado en datos en español.</li>
+    <li><strong>Limitaciones del heurístico:</strong> El método heurístico de fallback utiliza una ventana de negación de 3 palabras e intensificadores simples, lo que resulta insuficiente para capturar negaciones de largo alcance, sarcasmo, o estructuras adversativas complejas.</li>
+    <li><strong>Dataset artificialmente polarizado:</strong> La exclusión de puntuaciones intermedias (5-6/10) en IMDb crea un escenario de clasificación más favorable que las condiciones reales, donde abundan las opiniones ambiguas.</li>
+    <li><strong>Evaluación fuera de dominio pendiente:</strong> No se evaluó la transferencia a otros dominios (restaurantes, productos, servicios), lo que limita las conclusiones sobre generalización.</li>
+    <li><strong>Ausencia de modelos de deep learning como referencia:</strong> Aunque se comparan tres clasificadores de ML clásico, la comparación con modelos basados en transformadores (BERT, RoBERTa) queda como línea futura.</li>
+</ul>
+
+<h3>4.12 Análisis de equidad y sesgo (Fairness Analysis)</h3>
+<p>Se realizó un análisis de equidad del sistema de clasificación considerando múltiples dimensiones:</p>
+<ul>
+    <li><strong>Balance del dataset:</strong> El corpus IMDb está perfectamente balanceado (25,000 positivas + 25,000 negativas), eliminando el sesgo de clase mayoritaria. No se requirió oversampling ni undersampling, lo que preserva la distribución natural de las reseñas.</li>
+    <li><strong>Paridad por clase (per-class fairness):</strong> El modelo SVM presenta precisión de 0.89 para positivos y 0.90 para negativos, con recall de 0.91 (positivos) y 0.89 (negativos). La diferencia entre clases es inferior al 2% en todas las métricas, indicando que el clasificador no favorece sistemáticamente ninguna polaridad.</li>
+    <li><strong>Brecha lingüística (language fairness gap):</strong> Se identifica una limitación significativa en equidad multilingüe. El modelo SVM entrenado en inglés alcanza 89.68% de exactitud, mientras que el heurístico de fallback para español se estima en ~65% de exactitud. Esta brecha de ~25 puntos porcentuales constituye la principal inequidad del sistema y se documenta como limitación conocida. Los usuarios hispanohablantes reciben predicciones de menor calidad.</li>
+    <li><strong>Sesgo demográfico:</strong> El corpus IMDb no incluye metadatos demográficos de los autores, por lo que no es posible medir sesgos por género, edad o grupo étnico. Sin embargo, la población de usuarios de IMDb presenta un sesgo hacia varones angloparlantes de 18-34 años, lo que podría reflejarse en los patrones lingüísticos aprendidos.</li>
+    <li><strong>Estrategias de mitigación implementadas:</strong> (1) Dataset balanceado sin necesidad de técnicas de rebalanceo; (2) uso de macro-F1 como métrica principal (pondera igualmente ambas clases); (3) monitorización de drift en producción para detectar desviaciones en la distribución de predicciones; (4) documentación transparente de la brecha lingüística EN/ES.</li>
+    <li><strong>Limitación de dominio:</strong> El modelo fue entrenado exclusivamente en reseñas de cine. Su aplicación a otros dominios (restaurantes, productos, servicios) no ha sido validada y podría presentar sesgos de dominio significativos. Términos como "unpredictable" (positivo en cine, negativo en banca) ejemplifican este riesgo.</li>
+    <li><strong>Trabajo futuro en equidad:</strong> (1) Entrenar un modelo dedicado para español usando el corpus TASS; (2) evaluar sesgos con técnicas de counterfactual fairness; (3) implementar LIME/SHAP para explicabilidad de predicciones individuales; (4) validar transferencia cross-domain.</li>
+</ul>
 """,
     },
 

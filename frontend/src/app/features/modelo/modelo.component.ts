@@ -1,13 +1,17 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { InfoModalComponent, ModalData } from '../../shared/components/info-modal/info-modal.component';
 import { ModelService } from '../../core/services/model.service';
+import { isPositiveSentiment } from '../../core/constants';
 
 @Component({
   selector: 'app-modelo',
   standalone: true,
   imports: [FormsModule, LoadingSpinnerComponent, InfoModalComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -25,7 +29,10 @@ import { ModelService } from '../../core/services/model.service';
             <div
               class="card animate-fadeInUp hover-lift"
               style="text-align:center;cursor:pointer;"
+              role="button"
+              tabindex="0"
               (click)="openModelModal(model)"
+              (keydown.enter)="openModelModal(model)"
             >
               <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
                 <h3 class="font-display" style="font-size:0.9rem;font-weight:600;color:var(--color-text-primary);margin:0;">
@@ -59,7 +66,9 @@ import { ModelService } from '../../core/services/model.service';
                 </div>
               </div>
 
-              <div [class]="'progress progress--lg' + (model.key === bestModelKey() ? ' progress--success' : '')" style="margin-top:16px;">
+              <div [class]="'progress progress--lg' + (model.key === bestModelKey() ? ' progress--success' : '')" style="margin-top:16px;"
+                   role="progressbar" [attr.aria-valuenow]="(model.accuracy * 100).toFixed(1)" aria-valuemin="0" aria-valuemax="100"
+                   [attr.aria-label]="model.nombre + ' accuracy'">
                 <div class="progress__bar" [style.width.%]="model.accuracy * 100"></div>
               </div>
             </div>
@@ -71,7 +80,7 @@ import { ModelService } from '../../core/services/model.service';
           <p class="section-label">Comparación Detallada</p>
           <div class="card animate-fadeInUp" style="margin-bottom:32px;">
             <div class="table-responsive">
-              <table class="table table--compact">
+              <table class="table table--compact" aria-label="Comparacion detallada de metricas entre modelos">
                 <thead>
                   <tr>
                     <th>Métrica</th>
@@ -167,12 +176,15 @@ import { ModelService } from '../../core/services/model.service';
               <div
                 class="card animate-fadeInUp hover-lift"
                 style="cursor:pointer;"
+                role="button"
+                tabindex="0"
                 (click)="openConfusionModal(model)"
+                (keydown.enter)="openConfusionModal(model)"
               >
                 <h4 class="font-display" style="font-size:0.85rem;font-weight:600;text-align:center;margin:0 0 12px;color:var(--color-text-primary);">
                   {{ model.nombre_corto }}
                 </h4>
-                <div class="cm-grid">
+                <div class="cm-grid" role="img" [attr.aria-label]="'Matriz de confusion de ' + model.nombre_corto">
                   <div class="cm-header"></div>
                   <div class="cm-header font-mono">Pred Neg</div>
                   <div class="cm-header font-mono">Pred Pos</div>
@@ -320,7 +332,7 @@ import { ModelService } from '../../core/services/model.service';
     }
   `],
 })
-export class ModeloComponent implements OnInit {
+export class ModeloComponent implements OnInit, OnDestroy {
   loading = signal(true);
   modelList = signal<any[]>([]);
   comparison = signal<any>(null);
@@ -331,6 +343,8 @@ export class ModeloComponent implements OnInit {
   predictionError = signal<string>('');
   modalVisible = signal(false);
   modalData = signal<ModalData | null>(null);
+
+  private destroy$ = new Subject<void>();
 
   private metricDescriptions: Record<string, { nombre: string; description: string; formula: string; interpretacion: string }> = {
     accuracy: {
@@ -389,7 +403,7 @@ export class ModeloComponent implements OnInit {
   constructor(private modelService: ModelService) {}
 
   ngOnInit() {
-    this.modelService.getResults().subscribe({
+    this.modelService.getResults().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any) => {
         const models = Object.entries(data).map(([key, val]: [string, any]) => ({ key, ...val }));
         this.modelList.set(models);
@@ -407,9 +421,14 @@ export class ModeloComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
-    this.modelService.getComparison().subscribe({
+    this.modelService.getComparison().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => this.comparison.set(data),
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   isBest(values: number[], index: number, lowerIsBetter = false): boolean {
@@ -418,13 +437,8 @@ export class ModeloComponent implements OnInit {
     return values[index] === target;
   }
 
-  isPositive(value: any): boolean {
-    if (typeof value === 'string') {
-      const v = value.toLowerCase().trim();
-      return v === 'positivo' || v === 'positive' || v === 'pos';
-    }
-    if (typeof value === 'number') return value === 1;
-    return !!value;
+  isPositive(value: unknown): boolean {
+    return isPositiveSentiment(value);
   }
 
   openModelModal(model: any) {
@@ -575,7 +589,7 @@ export class ModeloComponent implements OnInit {
     this.predictionError.set('');
     this.prediction.set(null);
 
-    this.modelService.predict(text).subscribe({
+    this.modelService.predict(text).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any) => {
         this.prediction.set(data);
         this.predicting.set(false);

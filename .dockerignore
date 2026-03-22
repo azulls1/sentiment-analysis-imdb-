@@ -1,3 +1,4 @@
+# NXT framework (not needed in container)
 .nxt/
 .claude/
 agentes/
@@ -9,14 +10,54 @@ plantillas/
 plugins/
 skills/
 templates/
-tests/
 workflows/
+hooks/
+
+# Design system and frontend (backend image only)
 forest-design-system/
+frontend/
+node_modules/
+
+# Tests (not needed in production image)
+tests/
+
+# Python artifacts
 venv/
-*.md
-!README.md
-.git/
-.env
 __pycache__/
 *.pyc
-node_modules/
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Environment and secrets
+.env
+.env.*
+
+# Documentation (keep README for reference)
+*.md
+!README.md
+!requirements.txt
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# Docker-in-Docker (avoid recursive contexts)
+docker-compose*.yml
+Dockerfile*
+!backend/Dockerfile

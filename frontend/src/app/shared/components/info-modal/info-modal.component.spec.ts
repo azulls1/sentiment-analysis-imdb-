@@ -38,16 +38,15 @@ describe('InfoModalComponent', () => {
   });
 
   it('should not render modal overlay when visible is false', () => {
-    component.visible = false;
+    fixture.componentRef.setInput('visible', false);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    // The overlay div only renders when visible is true
     expect(compiled.querySelector('[role="dialog"]')).toBeNull();
   });
 
   it('should render modal overlay when visible is true and data is provided', () => {
-    component.visible = true;
-    component.data = mockData;
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('data', mockData);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('[role="dialog"]')).toBeTruthy();
@@ -68,11 +67,45 @@ describe('InfoModalComponent', () => {
   });
 
   it('should display modal title and value when visible', () => {
-    component.visible = true;
-    component.data = mockData;
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('data', mockData);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Test Modal');
     expect(compiled.textContent).toContain('89.68%');
+  });
+
+  describe('accessibility', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('visible', true);
+      fixture.componentRef.setInput('data', mockData);
+      fixture.detectChanges();
+    });
+
+    it('should have aria-modal attribute when visible', () => {
+      const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+      expect(dialog).toBeTruthy();
+      expect(dialog.getAttribute('aria-modal')).toBe('true');
+    });
+
+    it('should have aria-labelledby pointing to modal-title', () => {
+      const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+      expect(dialog.getAttribute('aria-labelledby')).toBe('modal-title');
+    });
+
+    it('should have aria-describedby pointing to modal-description', () => {
+      const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+      expect(dialog.getAttribute('aria-describedby')).toBe('modal-description');
+    });
+
+    it('should have close button with aria-label', () => {
+      const closeBtn = fixture.nativeElement.querySelector('button[aria-label="Cerrar"]');
+      expect(closeBtn).toBeTruthy();
+    });
+
+    it('should have aria-hidden on decorative close SVG icon', () => {
+      const svg = fixture.nativeElement.querySelector('svg[aria-hidden="true"]');
+      expect(svg).toBeTruthy();
+    });
   });
 });

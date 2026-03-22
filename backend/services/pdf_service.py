@@ -1,10 +1,20 @@
 """
-Servicio de generación de PDF con xhtml2pdf/WeasyPrint y Jinja2.
-Genera un informe académico con formato UNIR, máximo 12 páginas.
+PDF generation service using xhtml2pdf / WeasyPrint and Jinja2.
+
+Generates an academic report in UNIR format (max 12 pages).  User-supplied
+content embedded in the template is escaped via ``html.escape`` to prevent
+XSS or rendering issues.
 """
+
+import html
 import io
+import logging
+from typing import Dict
+
 from jinja2 import Template
 from backend.data.report_content import REPORT_BLOCKS, REPORT_METADATA
+
+logger = logging.getLogger(__name__)
 
 PDF_HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -183,11 +193,32 @@ PDF_HTML_TEMPLATE = """
 """
 
 
+def _sanitize_metadata(meta: Dict[str, str]) -> Dict[str, str]:
+    """HTML-escape all values in the metadata dictionary.
+
+    Args:
+        meta: Raw metadata dictionary.
+
+    Returns:
+        New dictionary with all string values escaped.
+    """
+    return {k: html.escape(str(v)) if isinstance(v, str) else v for k, v in meta.items()}
+
+
 def generate_pdf_bytes() -> bytes:
-    """Genera el PDF del informe como bytes."""
+    """Generate the academic report PDF as raw bytes.
+
+    Tries ``xhtml2pdf`` first (pure Python), then ``WeasyPrint``, then
+    falls back to a minimal valid PDF stub.
+
+    Returns:
+        PDF file content as ``bytes``.
+    """
+    # Sanitize user-facing metadata before injection into template
+    safe_meta = _sanitize_metadata(REPORT_METADATA)
     template = Template(PDF_HTML_TEMPLATE)
     html_content = template.render(
-        meta=REPORT_METADATA,
+        meta=safe_meta,
         blocks=REPORT_BLOCKS,
     )
     # Try xhtml2pdf first (pure Python, works everywhere)
@@ -196,34 +227,46 @@ def generate_pdf_bytes() -> bytes:
         buf = io.BytesIO()
         pisa_status = pisa.CreatePDF(html_content, dest=buf)
         if not pisa_status.err:
+            logger.info("PDF generated successfully with xhtml2pdf.")
             return buf.getvalue()
     except ImportError:
         pass
     except Exception:
-        pass
+        logger.debug("xhtml2pdf failed; trying WeasyPrint.", exc_info=True)
     # Try WeasyPrint (needs GTK on Windows)
     try:
         from weasyprint import HTML
         pdf_bytes = HTML(string=html_content).write_pdf()
+        logger.info("PDF generated successfully with WeasyPrint.")
         return pdf_bytes
     except ImportError:
         pass
     except Exception:
-        pass
+        logger.debug("WeasyPrint failed; using fallback PDF.", exc_info=True)
+    logger.warning("No PDF engine available; returning minimal fallback PDF.")
     return _generate_fallback_pdf()
 
 
 def generate_html_preview() -> str:
-    """Genera el HTML del informe para preview."""
+    """Generate the report as an HTML string for browser preview.
+
+    Returns:
+        Rendered HTML string.
+    """
+    safe_meta = _sanitize_metadata(REPORT_METADATA)
     template = Template(PDF_HTML_TEMPLATE)
     return template.render(
-        meta=REPORT_METADATA,
+        meta=safe_meta,
         blocks=REPORT_BLOCKS,
     )
 
 
 def _generate_fallback_pdf() -> bytes:
-    """Genera un PDF mínimo si WeasyPrint no está disponible."""
+    """Generate a minimal valid PDF when no rendering engine is available.
+
+    Returns:
+        Bytes of a single-page PDF with a placeholder title.
+    """
     # Minimal valid PDF
     content = (
         "%PDF-1.4\n"

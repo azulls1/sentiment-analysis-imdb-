@@ -12,3 +12,56 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Global high-contrast focus styles for interactive elements */
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-forest, #04202C);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Responsive table wrapper for tables that overflow on mobile */
+.table-responsive-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile modal optimization */
+@media (max-width: 640px) {
+  .table-responsive-wrap {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+}
+
+/* Touch target minimum sizes (WCAG 2.5.8 Target Size) */
+button,
+a,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Print styles — hide non-essential UI for clean printouts */
+@media print {
+  .navbar,
+  .sidebar,
+  .skip-link,
+  .overlay,
+  .header,
+  .app-sidebar {
+    display: none !important;
+  }
+  .app-main {
+    margin-left: 0 !important;
+  }
+  .card,
+  .card-hero {
+    break-inside: avoid;
+  }
+  body {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+}

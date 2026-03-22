@@ -9,7 +9,7 @@ describe('DatasetService', () => {
   let apiSpy: jasmine.SpyObj<ApiService>;
 
   beforeEach(() => {
-    apiSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'getBlob']);
+    apiSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'getBlob', 'checkHealth', 'clearCache']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -24,7 +24,7 @@ describe('DatasetService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call correct URL for stats', () => {
+  it('should call correct URL for stats with caching', () => {
     const mockStats: DatasetStats = {
       nombre: 'IMDb',
       total: 50000,
@@ -44,7 +44,7 @@ describe('DatasetService', () => {
       expect(data).toEqual(mockStats);
     });
 
-    expect(apiSpy.get).toHaveBeenCalledWith('/api/dataset/stats');
+    expect(apiSpy.get).toHaveBeenCalledWith('/api/dataset/stats', true);
   });
 
   it('should call correct URL for samples with default limit', () => {

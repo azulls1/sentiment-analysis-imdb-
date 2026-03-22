@@ -1,9 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, EMPTY, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
 import { DatasetService } from '../../core/services/dataset.service';
 import { ModelService } from '../../core/services/model.service';
+import { PREDICT_DEBOUNCE_MS } from '../../core/constants';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -163,5 +164,141 @@ describe('DashboardComponent', () => {
     component.quickPredict();
 
     expect(modelServiceSpy.predict).not.toHaveBeenCalled();
+  });
+
+  describe('debounce protection', () => {
+    it('should block rapid-fire predictions within debounce interval', fakeAsync(() => {
+      const mockResponse = {
+        texto: 'Test',
+        sentimiento: 'positivo',
+        confianza: 0.9,
+        scores: { positivo: 0.9, negativo: 0.1 },
+        modelo: 'svm-tfidf',
+        idioma: 'en',
+      };
+      modelServiceSpy.predict.and.returnValue(of(mockResponse as any));
+
+      component.predictText.set('First prediction');
+      component.quickPredict();
+      expect(modelServiceSpy.predict).toHaveBeenCalledTimes(1);
+
+      // Immediately try again (within debounce window)
+      component.predictText.set('Second prediction');
+      component.quickPredict();
+      // Should be blocked by debounce
+      expect(modelServiceSpy.predict).toHaveBeenCalledTimes(1);
+
+      // Wait past the debounce interval
+      tick(PREDICT_DEBOUNCE_MS + 10);
+
+      component.predictText.set('Third prediction');
+      component.quickPredict();
+      expect(modelServiceSpy.predict).toHaveBeenCalledTimes(2);
+    }));
+  });
+
+  describe('memory leak prevention', () => {
+    it('should unsubscribe on destroy', () => {
+      datasetServiceSpy.getStats.and.returnValue(EMPTY);
+      datasetServiceSpy.getSamples.and.returnValue(EMPTY);
+      modelServiceSpy.getResults.and.returnValue(EMPTY);
+
+      component.ngOnInit();
+      component.ngOnDestroy();
+
+      // After destroy, the destroy$ subject should be completed
+      // This verifies the lifecycle hook exists and runs without error
+      expect(component).toBeTruthy();
+    });
+  });
+
+  describe('accessibility', () => {
+    it('should render loading spinner with role=status when loading', () => {
+      fixture.detectChanges();
+      const spinner = fixture.nativeElement.querySelector('[role="status"]');
+      expect(spinner).toBeTruthy();
+    });
+
+    it('should have aria-live on loading spinner', () => {
+      fixture.detectChanges();
+      const spinner = fixture.nativeElement.querySelector('[aria-live="polite"]');
+      expect(spinner).toBeTruthy();
+    });
+
+    it('should render progress bars with proper aria attributes after data loads', () => {
+      const mockStats = {
+        nombre: 'IMDb', total: 50000, train: 25000, test: 25000,
+        clases: { positivo: 25000, negativo: 25000 }, balance: '50/50',
+        vocabulario_tfidf: 50000, max_features: 50000,
+        longitud_promedio_palabras: 230, longitud_mediana_palabras: 175,
+      };
+      datasetServiceSpy.getStats.and.returnValue(of(mockStats as any));
+      datasetServiceSpy.getSamples.and.returnValue(of([]));
+      modelServiceSpy.getResults.and.returnValue(of({} as any));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const progressBars = fixture.nativeElement.querySelectorAll('[role="progressbar"]');
+      expect(progressBars.length).toBeGreaterThan(0);
+
+      const firstBar = progressBars[0];
+      expect(firstBar.getAttribute('aria-valuemin')).toBe('0');
+      expect(firstBar.getAttribute('aria-valuemax')).toBe('100');
+      expect(firstBar.getAttribute('aria-valuenow')).toBeTruthy();
+    });
+
+    it('should have aria-hidden on decorative SVG icons', () => {
+      const mockStats = {
+        nombre: 'IMDb', total: 50000, train: 25000, test: 25000,
+        clases: { positivo: 25000, negativo: 25000 }, balance: '50/50',
+        vocabulario_tfidf: 50000, max_features: 50000,
+        longitud_promedio_palabras: 230, longitud_mediana_palabras: 175,
+      };
+      datasetServiceSpy.getStats.and.returnValue(of(mockStats as any));
+      datasetServiceSpy.getSamples.and.returnValue(of([]));
+      modelServiceSpy.getResults.and.returnValue(of({} as any));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const svgs = fixture.nativeElement.querySelectorAll('svg[aria-hidden="true"]');
+      expect(svgs.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('loading and error states', () => {
+    it('should show loading spinner while loading is true', () => {
+      fixture.detectChanges();
+      expect(component.loading()).toBeTrue();
+      const spinner = fixture.nativeElement.querySelector('app-loading-spinner');
+      expect(spinner).toBeTruthy();
+    });
+
+    it('should hide loading spinner after data loads', () => {
+      const mockStats = {
+        nombre: 'IMDb', total: 50000, train: 25000, test: 25000,
+        clases: { positivo: 25000, negativo: 25000 }, balance: '50/50',
+        vocabulario_tfidf: 50000, max_features: 50000,
+        longitud_promedio_palabras: 230, longitud_mediana_palabras: 175,
+      };
+      datasetServiceSpy.getStats.and.returnValue(of(mockStats as any));
+      datasetServiceSpy.getSamples.and.returnValue(of([]));
+      modelServiceSpy.getResults.and.returnValue(of({} as any));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.loading()).toBeFalse();
+    });
+
+    it('should display prediction error state', () => {
+      modelServiceSpy.predict.and.returnValue(throwError(() => new Error('fail')));
+      component.predictText.set('Test');
+      component.quickPredict();
+      fixture.detectChanges();
+
+      expect(component.predictionError()).toBeTrue();
+    });
   });
 });

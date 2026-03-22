@@ -1,0 +1,60 @@
+{
+  "en": {
+    "positive": [
+      "good", "great", "excellent", "amazing", "wonderful", "fantastic",
+      "brilliant", "outstanding", "superb", "love", "loved", "enjoy",
+      "enjoyed", "best", "beautiful", "perfect", "recommend", "recommended",
+      "entertaining", "fun", "masterpiece", "incredible", "impressive",
+      "heartwarming", "stunning", "powerful", "engaging", "captivating"
+    ],
+    "negative": [
+      "bad", "terrible", "awful", "horrible", "worst", "hate", "hated",
+      "boring", "waste", "poor", "disappointing", "disappointed",
+      "poorly", "dull", "stupid", "ridiculous", "pointless", "mediocre",
+      "annoying", "cringe", "pretentious", "overrated", "forgettable",
+      "tedious", "unoriginal", "unwatchable", "atrocious"
+    ],
+    "negation": [
+      "not", "no", "never", "neither", "nobody", "nothing",
+      "hardly", "barely", "dont", "doesnt", "didnt", "wasnt",
+      "werent", "isnt", "arent"
+    ],
+    "intensifiers": [
+      "very", "really", "extremely", "absolutely", "incredibly", "truly", "highly"
+    ]
+  },
+  "es": {
+    "positive": [
+      "buena", "bueno", "excelente", "increíble", "increible", "maravillosa",
+      "maravilloso", "fantástica", "fantastica", "fantástico", "fantastico",
+      "brillante", "genial", "magnífica", "magnifica", "sobresaliente",
+      "encanta", "encantó", "encanto", "disfruté", "disfrute", "disfrutar",
+      "mejor", "hermosa", "hermoso", "perfecta", "perfecto", "recomiendo",
+      "recomendable", "entretenida", "entretenido", "divertida", "divertido",
+      "obra maestra", "impresionante", "cautivadora", "cautivador",
+      "emotiva", "emotivo", "espectacular", "sublime", "extraordinaria",
+      "extraordinario", "fascinante", "conmovedora", "conmovedor",
+      "adoré", "adore", "gran", "grandiosa", "grandioso", "memorable",
+      "emocionante", "preciosa", "precioso", "bonita", "bonito"
+    ],
+    "negative": [
+      "mala", "malo", "terrible", "horrible", "pésima", "pesima", "pésimo",
+      "pesimo", "peor", "odio", "odié", "odie", "aburrida", "aburrido",
+      "desperdicio", "decepcionante", "decepcionada", "decepcionado",
+      "mediocre", "tonta", "tonto", "ridícula", "ridicula", "ridículo",
+      "ridiculo", "absurda", "absurdo", "insoportable", "pretenciosa",
+      "pretencioso", "olvidable", "tediosa", "tedioso", "floja", "flojo",
+      "pobre", "basura", "asco", "patética", "patetica", "patético",
+      "patetico", "infumable", "desastrosa", "desastroso", "lamentable",
+      "insulsa", "insulso", "predecible", "malísima", "malisima"
+    ],
+    "negation": [
+      "no", "nunca", "jamás", "jamas", "ni", "nadie", "nada",
+      "tampoco", "ningún", "ningun", "ninguna", "apenas"
+    ],
+    "intensifiers": [
+      "muy", "realmente", "extremadamente", "absolutamente",
+      "increíblemente", "increiblemente", "totalmente"
+    ]
+  }
+}

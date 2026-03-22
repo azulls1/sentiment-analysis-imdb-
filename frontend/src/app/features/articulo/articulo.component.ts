@@ -1,4 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ArticleService } from '../../core/services/article.service';
 
@@ -6,6 +8,7 @@ import { ArticleService } from '../../core/services/article.service';
   selector: 'app-articulo',
   standalone: true,
   imports: [LoadingSpinnerComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-medium">
       <div class="page-header animate-fadeIn">
@@ -207,8 +210,8 @@ import { ArticleService } from '../../core/services/article.service';
             <h3 class="font-display" style="font-size:0.95rem;font-weight:600;color:var(--color-text-primary);margin:0 0 12px;">
               Resultados Clave
             </h3>
-            <div class="table-wrapper">
-              <table class="table">
+            <div class="table-wrapper" style="overflow-x:auto;">
+              <table class="table" aria-label="Resultados clave por metodo de extraccion">
                 <thead>
                   <tr>
                     <th>Método</th><th>NB</th><th>LR</th><th>SVM</th>
@@ -342,8 +345,8 @@ import { ArticleService } from '../../core/services/article.service';
                 <h4 style="font-size:0.8rem;color:var(--color-text-muted);font-weight:600;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.03em;">
                   Comparación con Trabajos Previos
                 </h4>
-                <div class="table-wrapper">
-                  <table class="table">
+                <div class="table-wrapper" style="overflow-x:auto;">
+                  <table class="table" aria-label="Comparacion con trabajos previos">
                     <thead>
                       <tr>
                         <th>Autores</th><th>Método</th><th>Accuracy</th><th>Comparación</th>
@@ -413,19 +416,26 @@ import { ArticleService } from '../../core/services/article.service';
   `,
   styles: [],
 })
-export class ArticuloComponent implements OnInit {
+export class ArticuloComponent implements OnInit, OnDestroy {
   loading = signal(true);
   article = signal<any>(null);
+
+  private destroy$ = new Subject<void>();
 
   constructor(private articleService: ArticleService) {}
 
   ngOnInit() {
-    this.articleService.getSummary().subscribe({
+    this.articleService.getSummary().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.article.set(data);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,11 +1,15 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MetricCardComponent } from '../../shared/components/metric-card/metric-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { InfoModalComponent, ModalData } from '../../shared/components/info-modal/info-modal.component';
 import { DatasetService } from '../../core/services/dataset.service';
 import { ModelService } from '../../core/services/model.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
+import { isPositiveSentiment, LANGUAGE, PREDICT_DEBOUNCE_MS } from '../../core/constants';
 
 interface PredictionResult {
   positive: boolean;
@@ -19,6 +23,7 @@ interface PredictionResult {
   selector: 'app-dashboard',
   standalone: true,
   imports: [MetricCardComponent, LoadingSpinnerComponent, InfoModalComponent, FormsModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -105,7 +110,9 @@ interface PredictionResult {
                     <span class="font-mono" style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);">{{ m.accuracy }}%</span>
                   </div>
                 </div>
-                <div class="progress progress--lg" [class.progress--success]="m.best">
+                <div class="progress progress--lg" [class.progress--success]="m.best"
+                     role="progressbar" [attr.aria-valuenow]="m.accuracy" aria-valuemin="0" aria-valuemax="100"
+                     [attr.aria-label]="m.label + ' accuracy'">
                   <div class="progress__bar" [style.width.%]="m.width"></div>
                 </div>
               </div>
@@ -223,7 +230,7 @@ interface PredictionResult {
     }
   `],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   loading = signal(true);
   stats = signal<any>(null);
   models = signal<any>(null);
@@ -234,6 +241,9 @@ export class DashboardComponent implements OnInit {
   predictionError = signal(false);
   modalVisible = signal(false);
   modalData = signal<ModalData | null>(null);
+
+  private destroy$ = new Subject<void>();
+  private lastPredictTime = 0;
 
   modelBars: ModelBar[] = [
     { name: 'nb', label: 'Naïve Bayes', accuracy: 85.12, width: 85.12, best: false, isRef: false, time: 1.23 },
@@ -300,13 +310,17 @@ export class DashboardComponent implements OnInit {
     },
   };
 
+  private analyticsService = inject(AnalyticsService);
+
   constructor(
     private datasetService: DatasetService,
     private modelService: ModelService,
   ) {}
 
   ngOnInit() {
-    this.datasetService.getStats().subscribe({
+    this.analyticsService.trackPageView();
+
+    this.datasetService.getStats().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.stats.set(data);
         this.loading.set(false);
@@ -314,29 +328,40 @@ export class DashboardComponent implements OnInit {
       error: () => this.loading.set(false),
     });
 
-    this.modelService.getResults().subscribe({
+    this.modelService.getResults().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.models.set(data);
         this.updateModelBars(data);
       },
     });
 
-    this.datasetService.getSamples(6).subscribe({
+    this.datasetService.getSamples(6).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => this.samples.set(data),
     });
   }
 
-  isPositive(value: any): boolean {
-    return value === 1 || value === 'positive' || value === 'positivo';
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  isPositive(value: unknown): boolean {
+    return isPositiveSentiment(value);
   }
 
   quickPredict() {
     const text = this.predictText().trim();
     if (!text || this.predicting()) return;
+
+    // Debounce: prevent rapid-fire predictions within PREDICT_DEBOUNCE_MS
+    const now = Date.now();
+    if (now - this.lastPredictTime < PREDICT_DEBOUNCE_MS) return;
+    this.lastPredictTime = now;
+
     this.predicting.set(true);
     this.prediction.set(null);
     this.predictionError.set(false);
-    this.modelService.predict(text).subscribe({
+    this.modelService.predict(text).pipe(takeUntil(this.destroy$)).subscribe({
       next: (result) => {
         const positive = this.isPositive(result.sentimiento);
         const confidence = result.confianza > 1 ? result.confianza / 100 : result.confianza;
@@ -344,9 +369,10 @@ export class DashboardComponent implements OnInit {
           positive,
           confidenceLabel: (confidence * 100).toFixed(1) + '%',
           scores: result.scores ?? null,
-          idioma: result.idioma ?? 'en',
+          idioma: result.idioma ?? LANGUAGE.ENGLISH,
           modelo: result.modelo ?? 'svm-tfidf',
         });
+        this.analyticsService.trackPrediction();
         this.predicting.set(false);
       },
       error: () => {

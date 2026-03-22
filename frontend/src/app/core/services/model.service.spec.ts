@@ -8,7 +8,7 @@ describe('ModelService', () => {
   let apiSpy: jasmine.SpyObj<ApiService>;
 
   beforeEach(() => {
-    apiSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'getBlob']);
+    apiSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'getBlob', 'checkHealth', 'clearCache']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -23,7 +23,7 @@ describe('ModelService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should call correct URL for results', () => {
+  it('should call correct URL for results with caching', () => {
     const mockResults = { naive_bayes: {}, logistic_regression: {}, svm: {} };
     apiSpy.get.and.returnValue(of(mockResults));
 
@@ -31,10 +31,10 @@ describe('ModelService', () => {
       expect(data).toEqual(mockResults as any);
     });
 
-    expect(apiSpy.get).toHaveBeenCalledWith('/api/model/results');
+    expect(apiSpy.get).toHaveBeenCalledWith('/api/model/results', true);
   });
 
-  it('should call correct URL for comparison', () => {
+  it('should call correct URL for comparison with caching', () => {
     const mockComparison = {
       modelos: ['NB', 'LR', 'SVM'],
       accuracy: [85, 89, 90],
@@ -52,10 +52,10 @@ describe('ModelService', () => {
       expect(data).toEqual(mockComparison as any);
     });
 
-    expect(apiSpy.get).toHaveBeenCalledWith('/api/model/comparison');
+    expect(apiSpy.get).toHaveBeenCalledWith('/api/model/comparison', true);
   });
 
-  it('should call correct URL for status', () => {
+  it('should call correct URL for status without caching', () => {
     const mockStatus = {
       status: 'completed',
       progress: 100,

@@ -1,0 +1,18 @@
+{
+  "name": "Análisis de Sentimientos — IMDb Movie Reviews",
+  "short_name": "Sentimientos IMDb",
+  "description": "Plataforma de análisis de sentimientos en reseñas de películas IMDb usando NLP y Machine Learning",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F8F7",
+  "theme_color": "#04202C",
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

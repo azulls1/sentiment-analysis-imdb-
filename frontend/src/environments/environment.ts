@@ -4,3 +4,8 @@ export const environment = {
   supabaseUrl: '',
   supabaseAnonKey: '',
 };
+
+// Validate critical configuration at startup in development
+if (!environment.apiUrl) {
+  console.warn('[Environment] apiUrl is not configured. API calls will fail.');
+}

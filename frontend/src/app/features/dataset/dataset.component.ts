@@ -1,4 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MetricCardComponent } from '../../shared/components/metric-card/metric-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { InfoModalComponent, ModalData } from '../../shared/components/info-modal/info-modal.component';
@@ -8,6 +10,7 @@ import { DatasetService } from '../../core/services/dataset.service';
   selector: 'app-dataset',
   standalone: true,
   imports: [MetricCardComponent, LoadingSpinnerComponent, InfoModalComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page-wide">
       <div class="page-header animate-fadeIn">
@@ -31,7 +34,8 @@ import { DatasetService } from '../../core/services/dataset.service';
           Muestras de Reseñas
         </p>
         <div class="grid-cards stagger-children">
-          @for (sample of samples(); track $index) {
+          <!-- track by unique text content for optimal @for diffing (avoids re-rendering unchanged items) -->
+          @for (sample of samples(); track sample.texto) {
             <div
               class="card card-compact animate-fadeInUp"
               style="cursor:pointer;"
@@ -70,12 +74,14 @@ import { DatasetService } from '../../core/services/dataset.service';
   `,
   styles: [],
 })
-export class DatasetComponent implements OnInit {
+export class DatasetComponent implements OnInit, OnDestroy {
   loading = signal(true);
   stats = signal<any>(null);
   samples = signal<any[]>([]);
   modalVisible = signal(false);
   modalData = signal<ModalData | null>(null);
+
+  private destroy$ = new Subject<void>();
 
   private cardDetails: Record<string, ModalData> = {
     total: {
@@ -167,16 +173,21 @@ export class DatasetComponent implements OnInit {
   constructor(private datasetService: DatasetService) {}
 
   ngOnInit() {
-    this.datasetService.getStats().subscribe({
+    this.datasetService.getStats().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => this.stats.set(data),
     });
-    this.datasetService.getSamples().subscribe({
+    this.datasetService.getSamples().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.samples.set(data);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   openModal(key: string) {
